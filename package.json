@@ -1,6 +1,6 @@
 {
   "name": "promisify-file",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Promise File Read.",
   "main": "lib/index.js",
   "keywords": [
