@@ -2,6 +2,10 @@
 
 ## API
 
+### constructor
+
+takes a `Blob` as argument
+
 ### PromisifyFile.prototype.arrayBuffer
 
 return Promise&lt;ArrayBuffer&gt; use `FileReader.readAsArrayBuffer`
