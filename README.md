@@ -2,21 +2,21 @@
 
 ## API
 
-### PromisifyFile#arrayBuffer
+### PromisifyFile.prototype.arrayBuffer
 
-return Promise<ArrayBuffer> use `FileReader.readAsArrayBuffer`
+return Promise&lt;ArrayBuffer&gt; use `FileReader.readAsArrayBuffer`
 
-### PromisifyFile#text
+### PromisifyFile.prototype.text
 
-return Promise<String> use `FileReader.readAsText`
+return Promise&lt;String&gt; use `FileReader.readAsText`
 
-### PromisifyFile#dataURL
+### PromisifyFile.prototype.dataURL
 
-return Promise<String> use `FileReader.readAsDataURL`
+return Promise&lt;String&gt; use `FileReader.readAsDataURL`
 
-### PromisifyFile#binaryString
+### PromisifyFile.prototype.binaryString
 
-return Promise<String> use `FileReader.readAsBinaryString`
+return Promise&lt;String&gt; use `FileReader.readAsBinaryString`
 
 ## Usage
 
