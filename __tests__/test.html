@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 2px 5px;
+    border: 1px solid #ddd;
+  }
+
+  .pass {
+    color: green;
+  }
+
+  .fail {
+    color: red;
+  }
+  </style>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>test</th>
+        <th>result</th>
+      </tr>
+    </thead>
+    <tbody id="js-result">
+    </tbody>
+  </table>
+
+  <script src="../lib/index.js"></script>
+  <script>
+    var testText = 'hello promisify-file'
+    var imageArr = [
+      137,
+      80,
+      78,
+      71,
+      13,
+      10,
+      26,
+      10,
+      0,
+      0,
+      0,
+      13,
+      73,
+      72,
+      68,
+      82,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      8,
+      6,
+      0,
+      0,
+      0,
+      31,
+      21,
+      196,
+      137,
+      0,
+      0,
+      0,
+      11,
+      73,
+      68,
+      65,
+      84,
+      24,
+      87,
+      99,
+      96,
+      0,
+      2,
+      0,
+      0,
+      5,
+      0,
+      1,
+      170,
+      213,
+      200,
+      81,
+      0,
+      0,
+      0,
+      0,
+      73,
+      69,
+      78,
+      68,
+      174,
+      66,
+      96,
+      130
+    ]
+    var ts = Date.now()
+    var imageBIN = imageArr.map(function(chr) {
+      return String.fromCharCode(chr)
+    }).join('')
+    var textFile = new File([testText], 'pf.txt', {
+      type: 'text/plain'
+    })
+    var textBlob = new Blob([testText])
+    var imageFile = new File([new Int8Array(imageArr).buffer], 'pf.png', {
+      type: 'image/png'
+    })
+
+    var textFilePf = new PromisifyFile(textFile)
+    var textBlobPf = new PromisifyFile(textBlob)
+    var imagePf = new PromisifyFile(imageFile)
+
+    var container = document.getElementById('js-result')
+
+    function showResult(testDesc, td, expect) {
+      if (typeof expect === 'undefined') {
+        expect = true
+      }
+      return (result) => {
+        console.assert(result === expect, testDesc, result, expect)
+        if (result === expect) {
+          td.innerHTML = '<span class="pass">pass ✓</span>'
+        } else {
+          console.log(result, expect)
+          td.innerHTML = '<span class="fail">fail ✖</span>'
+        }
+      }
+    }
+
+    function test(testDesc, fn, expect) {
+      var tr = document.createElement('tr')
+      var testTd = document.createElement('td')
+      testTd.innerText = testDesc
+      var resultTd = document.createElement('td')
+      resultTd.innerText = 'running'
+
+      var setResult = showResult(testDesc, resultTd, expect)
+      try {
+        var result = fn()
+        if (result.then) {
+          result.then(setResult, setResult)
+        } else {
+          setResult(result)
+        }
+      } catch (err) {
+        setResult(err)
+      }
+
+      tr.appendChild(testTd)
+      tr.appendChild(resultTd)
+      container.appendChild(tr)
+    }
+
+    test('arrayBuffer', async () => {
+      return (await textFilePf.arrayBuffer()).byteLength
+    }, testText.length)
+
+    test('text', async () => {
+      return await textFilePf.text()
+    }, testText)
+
+    test('dataURL', async () => {
+      return await textFilePf.dataURL()
+    }, 'data:text/plain;base64,' + btoa(testText))
+
+    test('`Blob` dataURL', async () => {
+      return await textBlobPf.dataURL()
+    }, 'data:application/octet-stream;base64,' + btoa(testText))
+
+    test('BinaryString', async () => {
+      return await imagePf.binaryString()
+    }, imageBIN)
+
+    test('blob', async () => {
+      var blob = await imagePf.blob()
+      return (
+        !blob.name
+        && await imagePf.dataURL() === await new PromisifyFile(blob).dataURL()
+      )
+    })
+
+    test('file', async () => {
+      var newFileName = Date.now() + '.png'
+      var file = await imagePf.file(newFileName)
+      return (
+        file.name === newFileName
+        && await imagePf.dataURL() === await new PromisifyFile(file).dataURL()
+      )
+    })
+
+    test('json', async () => {
+      var data = {
+        hello: ts
+      }
+      var str = JSON.stringify(data)
+      var blob = new Blob([str])
+      var pf = new PromisifyFile(blob)
+      return (await pf.json()).hello
+    }, ts)
+
+    test('url', async () => {
+      var url = await imagePf.url()
+      return url.startsWith('blob:')
+    })
+
+    test('image', async () => {
+      var image = await imagePf.image()
+      return (
+        image.tagName === 'IMG'
+        && image.naturalHeight === 1
+        && image.naturalWidth === 1
+      )
+    })
+
+    test('imageBitmap', async () => {
+      var imageBitmap = await imagePf.imageBitmap()
+      return (
+        imageBitmap.height === 1
+        && imageBitmap.width === 1
+      )
+    })
+
+    test('imageData', async () => {
+      var imageData = await imagePf.imageData()
+      return imageData.data.length === 4
+    })
+
+    ;[
+      'Int8Array',
+      'Uint8Array',
+      'Uint8ClampedArray',
+      'Int16Array',
+      'Uint16Array',
+      'Int32Array',
+      'Uint32Array',
+      'Float32Array',
+      // 'Float64Array',
+      'DataView'
+    ].forEach(function(type) {
+      var method = type[0].toLowerCase() + type.slice(1)
+      test(method, async () => {
+        return Object.prototype.toString.call(await imagePf[method]())
+      }, '[object ' + type + ']')
+    })
+
+
+  </script>
+</body>
+</html>
