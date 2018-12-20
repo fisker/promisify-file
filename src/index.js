@@ -14,7 +14,7 @@
   var createImageBitmap = root.createImageBitmap
 
   var URL = root.URL || root.webkitURL
-  var createObjectURL = URL.createObjectURL.bind(URL)
+  var createObjectURL = URL && URL.createObjectURL && URL.createObjectURL.bind(URL)
 
   var concat = Array.prototype.concat
 
