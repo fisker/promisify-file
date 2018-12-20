@@ -297,8 +297,9 @@
     html: 'text/html'
   }
   PromisifyFile.prototype.document = function (encoding, overrideMimeType) {
+    var parser = parseDocument(overrideMimeType || this.$store.orignal.type)
     return this.text(encoding)
-      .then(parseDocument(overrideMimeType || this.$store.orignal.type))
+      .then(parser)
   }
   PromisifyFile.prototype.xml = getDocument('xml')
   PromisifyFile.prototype.svg = getDocument('svg')
