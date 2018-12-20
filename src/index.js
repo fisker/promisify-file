@@ -206,57 +206,60 @@
   }
 
   // get `ImageBitmap`
-  function imageToImageBitmap (args) {
-    return function (image) {
-      return apply(createImageBitmap, root, prepend(image, args))
-    }
-  }
   PromisifyFile.prototype.imageBitmap = function () {
-    return this.image().then(imageToImageBitmap(arguments))
+    return apply(
+      createImageBitmap,
+      root,
+      prepend(this.$store.orignal, arguments)
+    )
   }
 
   // get `ImageData`
-  var getImageData = OffscreenCanvas
-    ? function getImageData (sx, sy, sw, sh) {
+  function getImageDataByOffscreenCanvas (sx, sy, sw, sh) {
+    sx = sx || 0
+    sy = sy || 0
+    return function getImageDataByOffscreenCanvas (image) {
+      var width = image.naturalWidth
+      var height = image.naturalHeight
+      sw = sw || width
+      sh = sh || height
+
+      var canvas = new OffscreenCanvas(width, height)
+      var context = canvas.getContext('2d')
+
+      context.drawImage(image, 0, 0, width, height)
+
+      return context.getImageData(sx, sy, sw, sh)
+    }
+  }
+
+  var getImageDataByCanvas = (function () {
+    var canvas
+    var context
+
+    return function getImageData (sx, sy, sw, sh) {
       sx = sx || 0
       sy = sy || 0
+
       return function getImageData (image) {
-        var width = image.naturalWidth
-        var height = image.naturalHeight
+        canvas = canvas || root.document.createElement('canvas')
+        context = context || canvas.getContext('2d')
+
+        var width = canvas.width = image.naturalWidth
+        var height = canvas.height = image.naturalHeight
         sw = sw || width
         sh = sh || height
-
-        var canvas = new OffscreenCanvas(width, height)
-        var context = canvas.getContext('2d')
 
         context.drawImage(image, 0, 0, width, height)
 
         return context.getImageData(sx, sy, sw, sh)
       }
     }
-    : (function () {
-      var canvas
-      var context
+  })()
 
-      return function getImageData (sx, sy, sw, sh) {
-        sx = sx || 0
-        sy = sy || 0
-
-        return function getImageData (image) {
-          canvas = canvas || root.document.createElement('canvas')
-          context = context || canvas.getContext('2d')
-
-          var width = canvas.width = image.naturalWidth
-          var height = canvas.height = image.naturalHeight
-          sw = sw || width
-          sh = sh || height
-
-          context.drawImage(image, 0, 0, width, height)
-
-          return context.getImageData(sx, sy, sw, sh)
-        }
-      }
-    })()
+  var getImageData = OffscreenCanvas
+    ? getImageDataByOffscreenCanvas
+    : getImageDataByCanvas
   PromisifyFile.prototype.imageData = function (sx, sy, sw, sh) {
     return this.image().then(getImageData(sx, sy, sw, sh))
   }

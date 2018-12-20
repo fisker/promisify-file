@@ -179,7 +179,6 @@ syntax
 file.imageData([sx = 0[, sy = 0[, sw = image.width [, sh = image.height]]]])
 ```
 
-
 [ImageData](https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData)
 [OffscreenCanvas](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas/OffscreenCanvas)
 [HTMLCanvasElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
