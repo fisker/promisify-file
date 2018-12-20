@@ -193,9 +193,9 @@ syntax
 
 ```js
 file.document([encoding [, overrideMimeType]])
-file.xml([encoding]) // shortcut of file.document(encoding, 'application/xml')
-file.svg([encoding]) // shortcut of file.document(encoding, 'image/svg+xml')
-file.html([encoding]) // shortcut of file.document(encoding, 'text/html')
+file.xml([encoding]) // shortcut for file.document(encoding, 'application/xml')
+file.svg([encoding]) // shortcut for file.document(encoding, 'image/svg+xml')
+file.html([encoding]) // shortcut for file.document(encoding, 'text/html')
 ```
 
 * Note that if the parsing process fails, the `DOMParser` does not throw an exception, but `PromisifyFile.document` throws an `Error` *
