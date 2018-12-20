@@ -18,6 +18,7 @@
   var DOMParser = root.DOMParser
 
   var concat = Array.prototype.concat
+  var toString = Object.prototype.toString
 
   var fileReaderSupportedDataTypes = [
     'ArrayBuffer',
@@ -38,6 +39,63 @@
     'Float64Array',
     'DataView'
   ]
+
+  var imageLoadError = new Error('GET image failed.')
+  var xmlhttpLoadError = new Error('XMLHttpRequest load failed.')
+
+  function isObject (x) {
+    return x !== null && typeof x === 'object'
+  }
+
+  function isFunction (x) {
+    return typeof x === 'function'
+  }
+
+  function isThenAble (x) {
+    return isObject(x) && isFunction(x.then)
+  }
+
+  function isCanvasContext (x) {
+    return isObject(x) && isObject(x.canvas) && isFunction(x.canvas.getContext)
+  }
+
+  function getType (x) {
+    return toString.call(x).slice(8, -1)
+  }
+
+  function waitForImageLoad (image) {
+    if (image.naturalWidth) {
+      return Promise.resolve(image)
+    }
+
+    return new Promise(function (resolve, reject) {
+      image.addEventListener('load', function () {
+        resolve(image)
+      }, false)
+      image.addEventListener('error', function () {
+        reject(imageLoadError)
+      }, false)
+    })
+  }
+
+  function waitForFileReaderLoad (fileReader) {
+    if (fileReader.result) {
+      return Promise.resolve(fileReader)
+    }
+
+    if (fileReader.error) {
+      return Promise.reject(fileReader.error)
+    }
+
+    return new Promise(function (resolve, reject) {
+      fileReader.addEventListener('load', function () {
+        resolve(fileReader.result)
+      }, false)
+      fileReader.addEventListener('error', function () {
+        reject(fileReader.error)
+      }, false)
+    })
+  }
 
   /**
    * Faster apply
@@ -107,7 +165,31 @@
     return apply(concat, [first], rest)
   }
 
-  function PromisifyFile (blob, options) {
+  function PromisifyFile (data, options) {
+    options = options || {}
+
+    var blob = data
+    var type = options.type || data.type
+    var name = options.name || data.name
+    var lastModified = options.lastModified || data.lastModified
+
+    if (
+      type !== data.type ||
+      name !== data.name ||
+      lastModified !== data.lastModified
+    ) {
+      if (name) {
+        blob = new File([data], name, {
+          type: type,
+          lastModified: lastModified
+        })
+      } else {
+        blob = new Blob([data], {
+          type: type
+        })
+      }
+    }
+
     this.$store = {
       orignal: blob
     }
@@ -116,19 +198,9 @@
 
   // use FileReader `readAs...` method
   function readFile (method, blob, args) {
-    return new Promise(function (resolve, reject) {
-      var fileReader = new FileReader()
-
-      fileReader.onload = function () {
-        resolve(fileReader.result)
-      }
-
-      fileReader.onerror = function () {
-        reject(fileReader.error)
-      }
-
-      apply(method, fileReader, prepend(blob, args || []))
-    })
+    var fileReader = new FileReader()
+    apply(method, fileReader, prepend(blob, args || []))
+    return waitForFileReaderLoad(fileReader)
   }
 
   function readFileAs (dataType) {
@@ -138,15 +210,19 @@
     function fileReader () {
       var store = this.$store
       var key = storeKey
+      var args = []
 
       if (dataType === 'Text') {
-        var encoding = arguments[0] || 'UTF-8'
+        var encoding = arguments[0] || this.$options.encoding
+        if (encoding) {
+          args[0] = encoding
+        }
         store = store.text || (store.text = {})
-        key = String(encoding).toUpperCase()
+        key = String(encoding || 'UTF-8').toUpperCase()
       }
 
       if (!store[key]) {
-        store[key] = readFile(method, this.$store.orignal, arguments)
+        store[key] = readFile(method, this.$store.orignal, args)
       }
 
       return store[key]
@@ -206,7 +282,7 @@
   }
 
   PromisifyFile.prototype.json = function (encoding, reviver) {
-    return this.text(encoding).then(textToJSON(reviver))
+    return this.text(encoding || this.$options.encoding).then(textToJSON(reviver))
   }
 
   // get `URL`
@@ -217,16 +293,9 @@
 
   // load as a `HTMLImageElement`
   function loadImage (src) {
-    return new Promise(function (resolve, reject) {
-      var image = new Image()
-      image.onload = function () {
-        resolve(image)
-      }
-      image.onerror = function () {
-        reject(new Error('GET image failed.'))
-      }
-      image.src = src
-    })
+    var image = new Image()
+    image.src = src
+    return waitForImageLoad(image)
   }
 
   PromisifyFile.prototype.image = function () {
@@ -266,14 +335,21 @@
 
   var getContext = OffscreenCanvas ? getOffscreenCanvasContext : getCanvasContext
 
-  function getImageDataByCanvas (image, sx, sy, sw, sh) {
-    var context = getContext(image)
+  function drawImage (image) {
     var width = image.naturalWidth
     var height = image.naturalHeight
-    sw = sw || width
-    sh = sh || height
 
+    var context = getContext(image)
     context.drawImage(image, 0, 0, width, height)
+    return context
+  }
+
+  function getImageDataByCanvas (image, sx, sy, sw, sh) {
+    sw = sw || image.naturalWidth
+    sh = sh || image.naturalHeight
+
+    var context = drawImage(image)
+
     return context.getImageData(sx, sy, sw, sh)
   }
 
@@ -320,7 +396,7 @@
 
   function getDocumentByParser (parser) {
     return function (encoding) {
-      return this.text(encoding).then(parser)
+      return this.text(encoding || this.$options.encoding).then(parser)
     }
   }
 
@@ -342,6 +418,111 @@
   PromisifyFile.prototype.xml = getDocumentByType('xml')
   PromisifyFile.prototype.svg = getDocumentByType('svg')
   PromisifyFile.prototype.html = getDocumentByType('html')
+
+  function parseXHRData (xhr) {
+    var type = (xhr.responseType || 'text').toLowerCase()
+    var data
+    switch (type) {
+      case 'text':
+        data = xhr.responseText
+        break
+      case 'json':
+        data = JSON.stringify(xhr.response)
+        break
+      case 'document':
+        return xhr.responseXML
+      default:
+        data = xhr.response
+    }
+
+    return new Blob([data])
+  }
+
+  function isXHRLoaded (xhr) {
+    return xhr.readyState === 4 && xhr.status === 200
+  }
+
+  function waitForXHRLoad (xhr) {
+    if (isXHRLoaded(xhr)) {
+      return Promise.resolve(parseXHRData(xhr))
+    }
+
+    return new Promise(function (resolve, reject) {
+      xhr.addEventListener('readystatechange', function () {
+        if (isXHRLoaded(xhr)) {
+          resolve(parseXHRData(xhr))
+        }
+      }, false)
+      xhr.addEventListener('error', function () {
+        reject(xmlhttpLoadError)
+      }, false)
+    })
+  }
+
+  function parseFromData (data, options) {
+    var parser = function (data) {
+      return parseFromData(data, options)
+    }
+
+    if (isThenAble(data)) {
+      return isThenAble.then(parser)
+    }
+
+    var type = getType(data)
+    if (type === 'Blob' || type === 'File') {
+      return data
+    }
+
+    if (type === 'XMLHttpRequest') {
+      return waitForXHRLoad(data).then(parser)
+    }
+
+    if (type === 'HTMLImageElement') {
+      return waitForImageLoad(data).then(drawImage).then(parser)
+    }
+
+    if (type === 'FileReader') {
+      return waitForFileReaderLoad(data).then(parser)
+    }
+
+    if (type === 'Response' || type === 'Request') {
+      return data.blob()
+    }
+
+    if (type === 'HTMLDocument' || type === 'XMLDocument') {
+      return parser(data.documentElement.outerHTML)
+    }
+
+    if (type === 'HTMLCanvasElement') {
+      return new Promise(function (resolve) {
+        data.toBlob(resolve, options.type, options.quality)
+      })
+    }
+
+    if (type === 'OffscreenCanvas') {
+      return data.convertToBlob(options)
+    }
+
+    if (isCanvasContext(data)) {
+      return parser(data.canvas)
+    }
+
+    // if (type === 'ArrayBuffer' || ArrayBuffer.isView(data)) {
+    //   return new Blob([data])
+    // }
+
+    return new Blob([data])
+  }
+
+  PromisifyFile.from = function parseData (data, options) {
+    options = options || {}
+    var blob = parseFromData(data, options)
+    var promise = isThenAble(blob) ? blob : Promise.resolve(blob)
+
+    return promise.then(function (blob) {
+      return new PromisifyFile(blob, options)
+    })
+  }
 
   return umdExport('PromisifyFile', PromisifyFile)
 })()

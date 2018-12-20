@@ -17,15 +17,57 @@ import PromisifyFile from 'promisify-file'
 })(new File(['hello from pf.txt'], 'pf.txt', {type: 'text/plain'}))
 ```
 
-## API
+## options
 
-### constructor
+```js
+{
+  name: fileName,
+  type: fileMimeType,
+  encoding: textFileEncoding,
+  quality: imageFileQuality,
+  lastModified: fileLastModified
+}
+```
 
-takes a `Blob` as argument
+## constructor
 
-### methods
+syntax
 
-#### PromisifyFile.prototype.{arrayBuffer, text, dataURL, binaryString}
+```js
+let pf = new PromisifyFile(data, options)
+```
+
+data must be a `Blob`, otherwise you can use `PromisifyFile.from`
+
+## static methods
+
+### PromisifyFile.from
+
+returns a `Promise` that resolves with a `PromisifyFile` Object
+
+syntax
+
+```js
+let pf = await PromisifyFile.from(data, options)
+```
+
+data can be one of
+[`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+[`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob/Blob)
+[`XMLHttpRequest`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest)
+[`Body`](https://developer.mozilla.org/en-US/docs/Web/API/Body)
+[`Document`](https://developer.mozilla.org/en-US/docs/Web/API/Document/Document)
+[`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
+[`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas)
+[`HTMLImageElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement)
+[`RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/RenderingContext)
+[`TypedArray`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)
+[`DataView`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView)
+[`FileReader`](https://developer.mozilla.org/en-US/docs/Web/API/FileReader/FileReader)
+
+## methods
+
+### PromisifyFile.prototype.{arrayBuffer, text, dataURL, binaryString}
 
 returns a `Promise` that resolves with the result `FileReader.readAs{ArrayBuffer, Text, DataURL, BinaryString}`
 
@@ -46,7 +88,7 @@ file.binaryString()
 
 [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader/FileReader)
 
-#### PromisifyFile.prototype.{int8Array, uint8Array, uint8ClampedArray, int16Array, uint16Array, int32Array, uint32Array, float32Array, float64Array}
+### PromisifyFile.prototype.{int8Array, uint8Array, uint8ClampedArray, int16Array, uint16Array, int32Array, uint32Array, float32Array, float64Array}
 
 returns a `Promise` that resolves with a `TypedArray` created with blob arrayBuffer
 
@@ -74,7 +116,7 @@ file.float64Array([byteOffset [, length]])
 
 [TypedArray](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)
 
-#### PromisifyFile.prototype.dataView
+### PromisifyFile.prototype.dataView
 
 returns a `Promise` that resolves with a `DataView` created with blob arrayBuffer
 
@@ -88,7 +130,7 @@ file.dataView([byteOffset [, length]])
 
 [DataView](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView)
 
-#### PromisifyFile.prototype.blob
+### PromisifyFile.prototype.blob
 
 returns a `Promise` that resolves with a new `Blob` created with orignal blob
 
@@ -102,7 +144,7 @@ file.blob([options]])
 
 [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob/Blob)
 
-#### PromisifyFile.prototype.file
+### PromisifyFile.prototype.file
 
 returns a `Promise` that resolves with a new `File` created with orignal blob
 
@@ -118,7 +160,7 @@ file.file([name [, options]])
 
 [File](https://developer.mozilla.org/en-US/docs/Web/API/File/File)
 
-#### PromisifyFile.prototype.json
+### PromisifyFile.prototype.json
 
 returns a `Promise` that resolves with the result of parsing blob text as JSON
 
@@ -130,7 +172,7 @@ file.json([encoding [, reviver]])
 
 [JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
 
-#### PromisifyFile.prototype.url
+### PromisifyFile.prototype.url
 
 returns a `Promise` that resolves with the result of `URL.createObjectURL` create with blob
 
@@ -142,7 +184,7 @@ file.url()
 
 [URL.createObjectURL](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL)
 
-#### PromisifyFile.prototype.image
+### PromisifyFile.prototype.image
 
 returns a `Promise` that resolves with loaded `HTMLImageElement` create with blob
 
@@ -154,7 +196,7 @@ file.image()
 
 [HTMLImageElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement)
 
-#### PromisifyFile.prototype.imageBitmap
+### PromisifyFile.prototype.imageBitmap
 
 returns a `Promise` that resolves with `ImageBitmap` that `createImageBitmap` returns
 
@@ -201,7 +243,6 @@ file.html([encoding]) // shortcut for file.document(encoding, 'text/html')
 * Note that if the parsing process fails, the `DOMParser` does not throw an exception, but `PromisifyFile.document` throws an `Error` *
 
 [DomParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser)
-
 
 ## relative
 

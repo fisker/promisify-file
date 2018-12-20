@@ -317,6 +317,234 @@
       }, '[object ' + type + ']')
     })
 
+    async function isPF(x, type) {
+      if (!(x instanceof PromisifyFile)) {
+        return false
+      }
+
+      if ((await x.binaryString()).length < 1) {
+        return false
+      }
+
+      if (type === 'img') {
+        var file = await x.file('new.png', {
+          type: 'image/png'
+        })
+
+        var img = await new PromisifyFile(file).image()
+        return img.width === 1
+      }
+
+      if (type === 'text') {
+        var text = await x.text()
+        return text === testText
+      }
+
+      if (type === 'xml') {
+        var text = await x.text()
+        return text.startsWith('<') && text.endsWith('>')
+      }
+
+      return true
+    }
+
+    test('PromisifyFile.from(blob)', async () => {
+      var pf = await PromisifyFile.from(textBlob)
+      return isPF(pf, 'text')
+    })
+
+    test('PromisifyFile.from(file)', async () => {
+      var pf = await PromisifyFile.from(textFile)
+      return isPF(pf, 'text')
+    })
+
+    test('PromisifyFile.from(XMLHttpRequest not loaded yet)', async () => {
+      var testURL = await imagePf.dataURL()
+      var xmlhttp = new XMLHttpRequest()
+      xmlhttp.open('get', testURL)
+      xmlhttp.send()
+      xmlhttp.responseType = 'blob'
+      var pf = await PromisifyFile.from(xmlhttp)
+      return isPF(pf, 'img')
+    })
+
+    test('PromisifyFile.from(XMLHttpRequest loaded)', async () => {
+      var testURL = await imagePf.dataURL()
+      var xmlhttp = await new Promise(function (reslove) {
+        var xmlhttp = new XMLHttpRequest()
+        xmlhttp.open('get', testURL)
+        xmlhttp.send()
+        xmlhttp.responseType = 'blob'
+        xmlhttp.onload = function () {
+          if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            reslove(xmlhttp)
+          }
+        }
+      })
+      var pf = await PromisifyFile.from(xmlhttp)
+      return isPF(pf, 'img')
+    })
+
+    test('PromisifyFile.from(XMLHttpRequest none responseType)', async () => {
+      var testURL = await textFilePf.dataURL()
+      var xmlhttp = await new Promise(function (reslove) {
+        var xmlhttp = new XMLHttpRequest()
+        xmlhttp.open('get', testURL)
+        xmlhttp.send()
+        xmlhttp.onload = function () {
+          if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            reslove(xmlhttp)
+          }
+        }
+      })
+      var pf = await PromisifyFile.from(xmlhttp)
+      return isPF(pf, 'text')
+    })
+
+    test('PromisifyFile.from(XMLHttpRequest responseType = text)', async () => {
+      var testURL = await textFilePf.dataURL()
+      var xmlhttp = await new Promise(function (reslove) {
+        var xmlhttp = new XMLHttpRequest()
+        xmlhttp.open('get', testURL)
+        xmlhttp.send()
+        xmlhttp.responseType = 'text'
+        xmlhttp.onload = function () {
+          if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            reslove(xmlhttp)
+          }
+        }
+      })
+      var pf = await PromisifyFile.from(xmlhttp)
+      return isPF(pf, 'text')
+    })
+
+    test('PromisifyFile.from(XMLHttpRequest responseType = arraybuffer)', async () => {
+      var testURL = await imagePf.dataURL()
+      var xmlhttp = await new Promise(function (reslove) {
+        var xmlhttp = new XMLHttpRequest()
+        xmlhttp.open('get', testURL)
+        xmlhttp.send()
+        xmlhttp.responseType = 'arraybuffer'
+        xmlhttp.onload = function () {
+          if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            reslove(xmlhttp)
+          }
+        }
+      })
+      var pf = await PromisifyFile.from(xmlhttp)
+      return isPF(pf, 'image')
+    })
+
+    test('PromisifyFile.from(XMLHttpRequest responseType = blob)', async () => {
+      var testURL = await imagePf.dataURL()
+      var xmlhttp = await new Promise(function (reslove) {
+        var xmlhttp = new XMLHttpRequest()
+        xmlhttp.open('get', testURL)
+        xmlhttp.send()
+        xmlhttp.responseType = 'blob'
+        xmlhttp.onload = function () {
+          if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            reslove(xmlhttp)
+          }
+        }
+      })
+      var pf = await PromisifyFile.from(xmlhttp)
+      return isPF(pf, 'image')
+    })
+
+    test('PromisifyFile.from(XMLHttpRequest responseType = document)', async () => {
+      var testURL = await new PromisifyFile(xmlBlob).dataURL()
+      var xmlhttp = await new Promise(function (reslove) {
+        var xmlhttp = new XMLHttpRequest()
+        xmlhttp.open('get', testURL)
+        xmlhttp.send()
+        xmlhttp.responseType = 'document'
+        xmlhttp.onload = function () {
+          if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            reslove(xmlhttp)
+          }
+        }
+      })
+
+      var pf = await PromisifyFile.from(xmlhttp)
+      return isPF(pf, 'xml')
+    })
+
+    test('PromisifyFile.from(XMLHttpRequest responseType = json)', async () => {
+      var ts = Date.now()
+      var o = {
+        hello: ts
+      }
+      var testURL = await new PromisifyFile(new Blob([JSON.stringify(o)])).dataURL()
+      var xmlhttp = await new Promise(function (reslove) {
+        var xmlhttp = new XMLHttpRequest()
+        xmlhttp.open('get', testURL)
+        xmlhttp.send()
+        xmlhttp.responseType = 'json'
+        xmlhttp.onload = function () {
+          if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            reslove(xmlhttp)
+          }
+        }
+      })
+      var pf = await PromisifyFile.from(xmlhttp)
+      return isPF(pf) && ((await pf.json()).hello === ts)
+    })
+
+    test('PromisifyFile.from(canvas)', async () => {
+      var pf = await PromisifyFile.from(document.createElement('canvas'))
+      return isPF(pf) && ((await pf.image()).width === 300)
+    })
+
+    test('PromisifyFile.from(canvas as jpeg)', async () => {
+      var pf = await PromisifyFile.from(document.createElement('canvas'), {
+        type: 'image/jpeg'
+      })
+      return isPF(pf) && ((await pf.image()).width === 300) && (await pf.dataURL()).includes('jpeg')
+    })
+
+    test('PromisifyFile.from(OffscreenCanvas)', async () => {
+      var canvas = new OffscreenCanvas(1,1)
+      var context = canvas.getContext('2d')
+      context.fillRect(0,0,1,1)
+      var pf = await PromisifyFile.from(canvas)
+      return isPF(pf, 'img')
+    })
+
+    test('PromisifyFile.from(OffscreenCanvas as jpeg)', async () => {
+      var canvas = new OffscreenCanvas(1,1)
+      var context = canvas.getContext('2d')
+      context.fillRect(0,0,1,1)
+      var pf = await PromisifyFile.from(canvas, {
+        type: 'image/jpeg'
+      })
+      return isPF(pf, 'img') && (await pf.dataURL()).includes('jpeg')
+    })
+
+    test('PromisifyFile.from(ArrayBuffer)', async () => {
+      var buffer = await imagePf.arrayBuffer()
+      var pf = await PromisifyFile.from(buffer)
+      return isPF(pf, 'img')
+    })
+
+    test('PromisifyFile.from(DataView)', async () => {
+      var view = await imagePf.dataView()
+      var pf = await PromisifyFile.from(view)
+      return isPF(pf, 'img')
+    })
+
+    test('PromisifyFile.from(Response)', async () => {
+      var pf = await PromisifyFile.from(new Response(imageFile))
+      return isPF(pf, 'img')
+    })
+
+    test('PromisifyFile.from(Image)', async () => {
+      var img = new Image()
+      img.src = await imagePf.url()
+      var pf = await PromisifyFile.from(img)
+      return isPF(pf, 'img')
+    })
+
   </script>
 </body>
 </html>
