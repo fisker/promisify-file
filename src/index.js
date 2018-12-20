@@ -4,8 +4,6 @@
 
   var root = Function('return this')() // eslint-disable-line
 
-  var document = root.document
-
   var FileReader = root.FileReader
   var Promise = root.Promise
   var Blob = root.Blob
@@ -15,6 +13,8 @@
 
   var URL = root.URL || root.webkitURL
   var createObjectURL = URL && URL.createObjectURL && URL.createObjectURL.bind(URL)
+
+  var OffscreenCanvas = root.OffscreenCanvas
 
   var concat = Array.prototype.concat
 
@@ -216,27 +216,47 @@
   }
 
   // get `ImageData`
-  var getImageData = (function () {
-    var canvas
-    var context
-
-    return function getImageData (sx, sy, sw, sh) {
+  var getImageData = OffscreenCanvas
+    ? function getImageData (sx, sy, sw, sh) {
       sx = sx || 0
       sy = sy || 0
-
       return function getImageData (image) {
-        canvas = canvas || document.createElement('canvas')
-        context = context || canvas.getContext('2d')
-
-        var width = canvas.width = image.naturalWidth
-        var height = canvas.height = image.naturalHeight
+        var width = image.naturalWidth
+        var height = image.naturalHeight
         sw = sw || width
         sh = sh || height
+
+        var canvas = new OffscreenCanvas(width, height)
+        var context = canvas.getContext('2d')
+
+        context.drawImage(image, 0, 0, width, height)
 
         return context.getImageData(sx, sy, sw, sh)
       }
     }
-  })()
+    : (function () {
+      var canvas
+      var context
+
+      return function getImageData (sx, sy, sw, sh) {
+        sx = sx || 0
+        sy = sy || 0
+
+        return function getImageData (image) {
+          canvas = canvas || root.document.createElement('canvas')
+          context = context || canvas.getContext('2d')
+
+          var width = canvas.width = image.naturalWidth
+          var height = canvas.height = image.naturalHeight
+          sw = sw || width
+          sh = sh || height
+
+          context.drawImage(image, 0, 0, width, height)
+
+          return context.getImageData(sx, sy, sw, sh)
+        }
+      }
+    })()
   PromisifyFile.prototype.imageData = function (sx, sy, sw, sh) {
     return this.image().then(getImageData(sx, sy, sw, sh))
   }
