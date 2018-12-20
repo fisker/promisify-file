@@ -42,7 +42,7 @@ file.dataURL()
 file.binaryString()
 ```
 
-* result `arrayBuffer / text(UTF-8) / dataURL / binaryString` is cached *
+* result of `arrayBuffer / text / dataURL / binaryString` is cached *
 
 [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader/FileReader)
 
@@ -184,6 +184,24 @@ file.imageData([sx = 0[, sy = 0[, sw = image.width [, sh = image.height]]]])
 [HTMLCanvasElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
 [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
 [CanvasRenderingContext2D.getImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getImageData)
+
+### PromisifyFile.prototype.{document, xml, svg, html}
+
+returns a `Promise` that resolves with `DOMParser.parseFromString` parsing blob text
+
+syntax
+
+```js
+file.document([encoding [, overrideMimeType]])
+file.xml([encoding]) // shortcut of file.document(encoding, 'application/xml')
+file.svg([encoding]) // shortcut of file.document(encoding, 'image/svg+xml')
+file.html([encoding]) // shortcut of file.document(encoding, 'text/html')
+```
+
+* Note that if the parsing process fails, the `DOMParser` does not throw an exception, but `PromisifyFile.document` throws an `Error` *
+
+[DomParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser)
+
 
 ## relative
 

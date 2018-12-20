@@ -15,6 +15,7 @@
   var createObjectURL = URL && URL.createObjectURL && URL.createObjectURL.bind(URL)
 
   var OffscreenCanvas = root.OffscreenCanvas
+  var DOMParser = root.DOMParser
 
   var concat = Array.prototype.concat
 
@@ -111,22 +112,22 @@
   function readFileAs (dataType) {
     var method = FileReader.prototype['readAs' + dataType]
     var storeKey = camelcase(dataType)
-    var reDefaultEncoding = /utf-8/i
 
     return function readAs () {
-      if (
-        dataType === 'Text' &&
-        arguments[0] &&
-        !reDefaultEncoding.test(arguments[0])
-      ) {
-        return readFile(method, this.$store.orignal, arguments)
+      var store = this.$store
+      var key = storeKey
+
+      if (dataType === 'Text') {
+        var encoding = arguments[0] || 'UTF-8'
+        store = store.text || (store.text = {})
+        key = String(encoding).toUpperCase()
       }
 
-      if (!this.$store[storeKey]) {
-        this.$store[storeKey] = readFile(method, this.$store.orignal, arguments)
+      if (!store[key]) {
+        store[key] = readFile(method, this.$store.orignal, arguments)
       }
 
-      return this.$store[storeKey]
+      return store[key]
     }
   }
 
@@ -242,8 +243,8 @@
       sy = sy || 0
 
       return function getImageData (image) {
-        canvas = canvas || root.document.createElement('canvas')
-        context = context || canvas.getContext('2d')
+        canvas = canvas || (canvas = root.document.createElement('canvas'))
+        context = context || (context = canvas.getContext('2d'))
 
         var width = canvas.width = image.naturalWidth
         var height = canvas.height = image.naturalHeight
@@ -263,6 +264,45 @@
   PromisifyFile.prototype.imageData = function (sx, sy, sw, sh) {
     return this.image().then(getImageData(sx, sy, sw, sh))
   }
+
+  // DOMParser
+  function throwParserError (document) {
+    var parserError = document.getElementsByTagName('parsererror')[0]
+
+    if (parserError) {
+      throw new Error(parserError.innerText || parserError.textContent)
+    }
+
+    return document
+  }
+
+  function parseDocument (mime) {
+    var parser
+    return function (text) {
+      parser = parser || (parser = new DOMParser())
+      var document = parser.parseFromString(text, mime)
+      return throwParserError(document)
+    }
+  }
+  function getDocument (type) {
+    var parser = parseDocument(DOMParserMimeType[type])
+    return function (encoding) {
+      return this.text(encoding)
+        .then(parser)
+    }
+  }
+  var DOMParserMimeType = {
+    xml: 'application/xml',
+    svg: 'image/svg+xml',
+    html: 'text/html'
+  }
+  PromisifyFile.prototype.document = function (encoding, overrideMimeType) {
+    return this.text(encoding)
+      .then(parseDocument(overrideMimeType || this.$store.orignal.type))
+  }
+  PromisifyFile.prototype.xml = getDocument('xml')
+  PromisifyFile.prototype.svg = getDocument('svg')
+  PromisifyFile.prototype.html = getDocument('html')
 
   return umdExport('PromisifyFile', PromisifyFile)
 })()

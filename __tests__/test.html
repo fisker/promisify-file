@@ -122,6 +122,16 @@
     var imageFile = new File([new Int8Array(imageArr).buffer], 'pf.png', {
       type: 'image/png'
     })
+    var xmlBlob = new Blob(['<xml><hello>promisify-file</hello></xml>'])
+    var xmlFile = new File(['<xml><hello>promisify-file</hello></xml>'], 'pf.xml', {
+      type: 'text/xml'
+    })
+    var htmlFile = new File(['<!DOCTYPE html><html lang="en"><head></head><body></body></html>'], 'pf.html', {
+      type: 'text/html'
+    })
+    var svgFile = new File(['<svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg"></svg>'], 'pf.svg', {
+      type: 'image/svg+xml'
+    })
 
     var textFilePf = new PromisifyFile(textFile)
     var textBlobPf = new PromisifyFile(textBlob)
@@ -242,6 +252,53 @@
       return imageData.data.length === 4
     })
 
+    test('document', async () => {
+      var document = await new PromisifyFile(xmlFile).document()
+      return Object.prototype.toString.call(document)
+    }, '[object XMLDocument]')
+
+    test('document(unsupported type)', async () => {
+      try {
+        await new PromisifyFile(xmlBlob).document()
+      } catch (err) {
+        return err instanceof TypeError
+      }
+
+      return false
+    })
+
+    test('document(overridemime)', async () => {
+      var document = await new PromisifyFile(xmlBlob).document('UTF-8', 'text/xml')
+      return Object.prototype.toString.call(document)
+    }, '[object XMLDocument]')
+
+    test('document(broken)', async () => {
+      try {
+        var document = await new PromisifyFile(new Blob(['x'])).xml()
+        return true
+      } catch (err) {
+        return err instanceof Error
+      }
+    })
+
+    test('xml', async () => {
+      var document = await new PromisifyFile(xmlFile).xml()
+      return Object.prototype.toString.call(document)
+    }, '[object XMLDocument]')
+
+    test('svg', async () => {
+      var document = await new PromisifyFile(svgFile).svg()
+      return (
+        Object.prototype.toString.call(document) === '[object XMLDocument]'
+        && Object.prototype.toString.call(document.documentElement) === '[object SVGSVGElement]'
+      )
+    })
+
+    test('html', async () => {
+      var document = await new PromisifyFile(htmlFile).html()
+      return Object.prototype.toString.call(document)
+    }, '[object HTMLDocument]')
+
     ;[
       'Int8Array',
       'Uint8Array',
@@ -259,7 +316,6 @@
         return Object.prototype.toString.call(await imagePf[method]())
       }, '[object ' + type + ']')
     })
-
 
   </script>
 </body>
