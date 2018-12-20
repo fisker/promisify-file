@@ -1,5 +1,22 @@
 # Promisify File
 
+## Usage
+
+### Basic syntax
+
+```js
+import PromisifyFile from 'promisify-file'
+
+;(async file => {
+  try {
+    console.log(await new PromisifyFile(file).text())
+  } catch (err) {
+    console.error(err)
+  }
+
+})(new File(['hello from pf.txt'], 'pf.txt', {type: 'text/plain'}))
+```
+
 ## API
 
 ### constructor
@@ -25,7 +42,7 @@ file.dataURL()
 file.binaryString()
 ```
 
-* result `arrayBuffer / text(UTF-8) / dataURL / binaryString` is cached
+* result `arrayBuffer / text(UTF-8) / dataURL / binaryString` is cached *
 
 [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader/FileReader)
 
@@ -167,23 +184,6 @@ file.imageData([sx = 0[, sy = 0[, sw = image.width [, sh = image.height]]]])
 [HTMLCanvasElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
 [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
 [CanvasRenderingContext2D.getImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getImageData)
-
-## Usage
-
-### Basic syntax
-
-```js
-import PromisifyFile from 'promisify-file'
-
-;(async file => {
-  try {
-    console.log(await new PromisifyFile(file).text())
-  } catch (err) {
-    console.error(err)
-  }
-
-})(new File(['hello from pf.txt'], 'pf.txt', {type: 'text/plain'}))
-```
 
 ## relative
 
