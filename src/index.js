@@ -41,7 +41,7 @@
 
   /**
    * Faster apply
-   * Call is faster than apply, optimize less than 4 args *
+   * Call is faster than apply, optimize less than 4 args
    *
    * @param  {Function} func
    * @param  {any} context
@@ -62,9 +62,32 @@
     }
   }
 
-  function camelcase (s) {
-    return s[0].toLowerCase() + s.slice(1)
+  /**
+   * Simple memoize
+   * internal use only
+   * func should accept 0 / 1 argument and argument only primitive
+   * func should return primitive value or function
+   *
+   * @param  {Function} func
+   * @returns {Function}
+   */
+  function memoize (func) {
+    var cache = {}
+    function memoized (first) {
+      var key = first
+
+      if (!cache[key]) {
+        cache[key] = apply(func, this, arguments)
+      }
+
+      return cache[key]
+    }
+    return memoized
   }
+
+  var camelcase = memoize(function camelcase (s) {
+    return s[0].toLowerCase() + s.slice(1)
+  })
 
   function umdExport (name, mod) {
     if (typeof define === 'function' && define.amd) {
@@ -92,11 +115,10 @@
   }
 
   // use FileReader `readAs...` method
-
   function readFile (method, blob, args) {
-    var fileReader = new FileReader()
-
     return new Promise(function (resolve, reject) {
+      var fileReader = new FileReader()
+
       fileReader.onload = function () {
         resolve(fileReader.result)
       }
@@ -113,7 +135,7 @@
     var method = FileReader.prototype['readAs' + dataType]
     var storeKey = camelcase(dataType)
 
-    return function readAs () {
+    function fileReader () {
       var store = this.$store
       var key = storeKey
 
@@ -129,6 +151,8 @@
 
       return store[key]
     }
+
+    return fileReader
   }
 
   fileReaderSupportedDataTypes.forEach(function (dataType) {
@@ -139,13 +163,14 @@
     var TypedArray = window[viewType]
 
     return function getArrayBufferView (byteOffset, length) {
-      return this.arrayBuffer().then(function (buffer) {
+      function arrayBufferParser (buffer) {
         return new TypedArray(
           buffer,
           byteOffset,
           length
         )
-      })
+      }
+      return this.arrayBuffer().then(arrayBufferParser)
     }
   }
   // get getArrayBufferView
@@ -174,9 +199,10 @@
 
   // parse text content to `JSON`
   function textToJSON (reviver) {
-    return function (text) {
+    function JSONParser (text) {
       return JSON.parse(text, reviver)
     }
+    return JSONParser
   }
 
   PromisifyFile.prototype.json = function (encoding, reviver) {
@@ -202,6 +228,7 @@
       image.src = src
     })
   }
+
   PromisifyFile.prototype.image = function () {
     return this.dataURL().then(loadImage)
   }
@@ -216,51 +243,51 @@
   }
 
   // get `ImageData`
-  function getImageDataByOffscreenCanvas (sx, sy, sw, sh) {
-    sx = sx || 0
-    sy = sy || 0
-    return function getImageDataByOffscreenCanvas (image) {
-      var width = image.naturalWidth
-      var height = image.naturalHeight
-      sw = sw || width
-      sh = sh || height
-
-      var canvas = new OffscreenCanvas(width, height)
-      var context = canvas.getContext('2d')
-
-      context.drawImage(image, 0, 0, width, height)
-
-      return context.getImageData(sx, sy, sw, sh)
-    }
+  function getOffscreenCanvasContext (image) {
+    var canvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight)
+    return canvas.getContext('2d')
   }
 
-  var getImageDataByCanvas = (function () {
+  var getCanvasContext = (function () {
     var canvas
     var context
+    function getCanvasContext (image) {
+      canvas = canvas || (canvas = root.document.createElement('canvas'))
+      context = context || (context = canvas.getContext('2d'))
 
-    return function getImageData (sx, sy, sw, sh) {
-      sx = sx || 0
-      sy = sy || 0
+      canvas.width = image.naturalWidth
+      canvas.height = image.naturalHeight
 
-      return function getImageData (image) {
-        canvas = canvas || (canvas = root.document.createElement('canvas'))
-        context = context || (context = canvas.getContext('2d'))
-
-        var width = canvas.width = image.naturalWidth
-        var height = canvas.height = image.naturalHeight
-        sw = sw || width
-        sh = sh || height
-
-        context.drawImage(image, 0, 0, width, height)
-
-        return context.getImageData(sx, sy, sw, sh)
-      }
+      return context
     }
+
+    return getCanvasContext
   })()
 
-  var getImageData = OffscreenCanvas
-    ? getImageDataByOffscreenCanvas
-    : getImageDataByCanvas
+  var getContext = OffscreenCanvas ? getOffscreenCanvasContext : getCanvasContext
+
+  function getImageDataByCanvas (image, sx, sy, sw, sh) {
+    var context = getContext(image)
+    var width = image.naturalWidth
+    var height = image.naturalHeight
+    sw = sw || width
+    sh = sh || height
+
+    context.drawImage(image, 0, 0, width, height)
+    return context.getImageData(sx, sy, sw, sh)
+  }
+
+  function getImageData (sx, sy, sw, sh) {
+    sx = sx || 0
+    sy = sy || 0
+
+    function getImageData (image) {
+      return getImageDataByCanvas(image, sx, sy, sw, sh)
+    }
+
+    return getImageData
+  }
+
   PromisifyFile.prototype.imageData = function (sx, sy, sw, sh) {
     return this.image().then(getImageData(sx, sy, sw, sh))
   }
@@ -276,20 +303,30 @@
     return document
   }
 
-  function parseDocument (mime) {
+  var getParserForMimeType = (function () {
     var parser
-    return function (text) {
-      parser = parser || (parser = new DOMParser())
-      var document = parser.parseFromString(text, mime)
-      return throwParserError(document)
+    function parseDocument (mime) {
+      function parseDocument (text) {
+        parser = parser || (parser = new DOMParser())
+        var document = parser.parseFromString(text, mime)
+        return throwParserError(document)
+      }
+
+      return parseDocument
+    }
+
+    return memoize(parseDocument)
+  })()
+
+  function getDocumentByParser (parser) {
+    return function (encoding) {
+      return this.text(encoding).then(parser)
     }
   }
-  function getDocument (type) {
-    var parser = parseDocument(DOMParserMimeType[type])
-    return function (encoding) {
-      return this.text(encoding)
-        .then(parser)
-    }
+
+  function getDocumentByType (type) {
+    var parser = getParserForMimeType(DOMParserMimeType[type])
+    return getDocumentByParser(parser)
   }
   var DOMParserMimeType = {
     xml: 'application/xml',
@@ -297,13 +334,14 @@
     html: 'text/html'
   }
   PromisifyFile.prototype.document = function (encoding, overrideMimeType) {
-    var parser = parseDocument(overrideMimeType || this.$store.orignal.type)
-    return this.text(encoding)
-      .then(parser)
+    var parser = getParserForMimeType(
+      overrideMimeType || this.$store.orignal.type
+    )
+    return getDocumentByParser(parser).call(this, encoding)
   }
-  PromisifyFile.prototype.xml = getDocument('xml')
-  PromisifyFile.prototype.svg = getDocument('svg')
-  PromisifyFile.prototype.html = getDocument('html')
+  PromisifyFile.prototype.xml = getDocumentByType('xml')
+  PromisifyFile.prototype.svg = getDocumentByType('svg')
+  PromisifyFile.prototype.html = getDocumentByType('html')
 
   return umdExport('PromisifyFile', PromisifyFile)
 })()

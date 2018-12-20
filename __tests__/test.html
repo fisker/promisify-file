@@ -129,7 +129,7 @@
     var htmlFile = new File(['<!DOCTYPE html><html lang="en"><head></head><body></body></html>'], 'pf.html', {
       type: 'text/html'
     })
-    var svgFile = new File(['<svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg"></svg>'], 'pf.svg', {
+    var svgFile = new File(['<svg xmlns="http://www.w3.org/2000/svg"></svg>'], 'pf.svg', {
       type: 'image/svg+xml'
     })
 
@@ -268,7 +268,7 @@
     })
 
     test('document(overridemime)', async () => {
-      var document = await new PromisifyFile(xmlBlob).document('UTF-8', 'text/xml')
+      var document = await new PromisifyFile(htmlFile).document('UTF-8', 'text/xml')
       return Object.prototype.toString.call(document)
     }, '[object XMLDocument]')
 
