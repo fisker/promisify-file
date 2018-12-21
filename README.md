@@ -72,6 +72,7 @@ supported data types:
 - [x] [OffscreenCanvas](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas)
 - [x] [HTMLImageElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement)
 - [x] [RenderingContext](https://developer.mozilla.org/en-US/docs/Web/API/RenderingContext)
+- [x] [ImageBitmapRenderingContext](https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmapRenderingContext)
 - [x] [TypedArray](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)
 - [x] [DataView](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView)
 - [x] [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader/FileReader)

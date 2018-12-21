@@ -496,6 +496,16 @@
       return isPF(pf) && ((await pf.image()).width === 300)
     })
 
+    test('PromisifyFile.from(CanvasRenderingContext2D)', async () => {
+      var pf = await PromisifyFile.from(document.createElement('canvas').getContext('2d'))
+      return isPF(pf) && ((await pf.image()).width === 300)
+    })
+
+    test('PromisifyFile.from(ImageBitmapRenderingContext)', async () => {
+      var pf = await PromisifyFile.from(document.createElement('canvas').getContext('bitmaprenderer'))
+      return isPF(pf) && ((await pf.image()).width === 300)
+    })
+
     test('PromisifyFile.from(canvas as jpeg)', async () => {
       var pf = await PromisifyFile.from(document.createElement('canvas'), {
         type: 'image/jpeg'
