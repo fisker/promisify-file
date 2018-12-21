@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  tr:hover {
+    background: #ddd;
+  }
+
+  th,
+  td {
+    padding: 2px 5px;
+    border: 1px solid #ddd;
+  }
+
+  .pass {
+    color: green;
+  }
+
+  .fail {
+    color: red;
+  }
+  </style>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>test</th>
+        <th>result</th>
+      </tr>
+    </thead>
+    <tbody id="js-result">
+    </tbody>
+  </table>
+
+  <script src="node_modules/regenerator-runtime/runtime.js"></script>
+  <script src="node_modules/es6-promise/dist/es6-promise.auto.min.js"></script>
+  <script src="node_modules/whatwg-fetch/dist/fetch.umd.js"></script>
+  <script src="src/index.js"></script>
+  <script src="lib/test.js"></script>
+</body>
+</html>

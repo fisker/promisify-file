@@ -5,6 +5,7 @@
 
   var FileReader = root.FileReader
   var Promise = root.Promise
+  var toStringTag = root.Symbol && root.Symbol.toStringTag
   var Blob = root.Blob
   var File = root.File
   var Image = root.Image
@@ -16,11 +17,14 @@
 
   var OffscreenCanvas = root.OffscreenCanvas
   var DOMParser = root.DOMParser
+  var XMLSerializer = root.XMLSerializer
 
-  var concat = Array.prototype.concat
+  var push = Array.prototype.push
   var toString = Object.prototype.toString
+  var fromCharCode = String.fromCharCode
 
   var base64DataURLPattern = /^data:(.*?)?;base64,(.+)$/
+  var moduleName = 'PromisifyFile'
 
   var fileReaderSupportedDataTypes = [
     'ArrayBuffer',
@@ -45,6 +49,15 @@
   var imageLoadError = new Error('GET image failed.')
   var xmlhttpLoadError = new Error('XMLHttpRequest load failed.')
   var xmlhttpTimeoutError = new Error('XMLHttpRequest timeout.')
+  // ie don't support DataView As Blob parts
+  var supportDataViewInBlobConstructor = (function () {
+    try {
+      new Blob([new DataView(new ArrayBuffer())]) // eslint-disable-line
+      return true
+    } catch (err) {
+      return false
+    }
+  })()
 
   function isObject (x) {
     return x !== null && typeof x === 'object'
@@ -64,6 +77,28 @@
 
   function isRenderingContext (x) {
     return isObject(x) && isCanvas(x.canvas)
+  }
+
+  function isArrayBuffer (x) {
+    return isObject(x) && getType(x) === 'ArrayBuffer'
+  }
+
+  // ie DataView.toString is [object Object]
+  function isDataView (x) {
+    // can't do ArrayBuffer.isView check on ie 10
+    return isObject(x) && isArrayBuffer(x.buffer)
+  }
+
+  // whatwg-fetch polyfilled fetch Symbol.toString is not current
+  function isBody (x) {
+    return (
+      isObject(x) &&
+      isFunction(x.arrayBuffer) &&
+      isFunction(x.blob) &&
+      isFunction(x.formData) &&
+      isFunction(x.json) &&
+      isFunction(x.text)
+    )
   }
 
   function getType (x) {
@@ -144,7 +179,7 @@
   /**
    * Simple curryRight
    * internal use only
-   * returns a function accept arguments except first argument
+   * returns a function accept argumentst
    *
    * @param  {Function} func
    * @param  {any} context
@@ -153,11 +188,11 @@
   function curryRight (func, context) {
     var rest
 
-    function curried (first) {
+    function curried () {
       return apply(
         func,
         context || this,
-        prepend(first, rest)
+        concat(arguments, rest)
       )
     }
 
@@ -170,15 +205,25 @@
   }
 
   /**
-   * prepend
-   * prepend first to rest
+   * concat two ArrayLike
    *
-   * @param  {any} first
-   * @param  {ArrayLike} rest
+   * @param  {ArrayLike} first
+   * @param  {ArrayLike} first
    * @returns  {Array}
    */
-  function prepend (first, rest) {
-    return apply(concat, [first], rest)
+  function concat (first, second) {
+    var arr = []
+    apply(
+      push,
+      arr,
+      first
+    )
+    apply(
+      push,
+      arr,
+      second
+    )
+    return arr
   }
 
   /**
@@ -201,22 +246,49 @@
    * @param  {any} mod
    * @returns  {any}
    */
-  function umdExport (name, mod) {
+  function umdExport (mod) {
     var define = root.define
     var module = root.module
 
     if (isFunction(define) && define.amd) {
-      define(name, [], function () {
+      define(moduleName, [], function () {
         return mod
       })
     } else if (isObject(module) && module.exports) {
       module.exports = mod
     } else {
-      root[name] = mod
+      root[moduleName] = mod
     }
 
     return mod
   }
+
+  var getFile = (function () {
+    function testFileSupport () {
+      try {
+        new File([], 'test') // eslint-disable-line
+        return true
+      } catch (err) {
+        return false
+      }
+    }
+
+    var getFile = function getFile (parts, fileName, options) {
+      return new File(parts, fileName, options)
+    }
+    var supportNewFile = testFileSupport()
+
+    if (!supportNewFile) {
+      getFile = function getFile (parts, fileName, options) {
+        var blob = new Blob(parts, options)
+        blob.name = fileName
+        blob.lastModified = options.lastModified || Date.now()
+        return blob
+      }
+    }
+
+    return getFile
+  })()
 
   var waitForImage = promisify(function waitForImage (image, resolve, reject) {
     if (image.naturalWidth) {
@@ -234,7 +306,7 @@
 
   var waitForFileReader = promisify(function waitForFileReader (fileReader, resolve, reject) {
     if (fileReader.result) {
-      return resolve(fileReader)
+      return resolve(fileReader.result)
     }
 
     if (fileReader.error) {
@@ -301,7 +373,7 @@
       lastModified !== data.lastModified
     ) {
       if (name) {
-        blob = new File([data], name, {
+        blob = getFile([data], name, {
           type: type,
           lastModified: lastModified
         })
@@ -321,8 +393,17 @@
   // use FileReader `readAs...` method
   function readFile (method, blob, args) {
     var fileReader = new FileReader()
-    apply(method, fileReader, prepend(blob, args || []))
+    apply(method, fileReader, concat([blob], args || []))
     return waitForFileReader(fileReader)
+  }
+
+  function arrayBufferToBinaryString (buffer) {
+    var bytes = new Uint8Array(buffer)
+    return apply(fromCharCode, String, bytes)
+  }
+
+  function readAsBinaryString (file) {
+    return this.arrayBuffer().then(arrayBufferToBinaryString)
   }
 
   function readFileAs (dataType) {
@@ -344,7 +425,12 @@
       }
 
       if (!store[key]) {
-        store[key] = readFile(method, this.$store.orignal, args)
+        // ie don't support readAsBinaryString
+        if (dataType === 'BinaryString' && !method) {
+          store[key] = readAsBinaryString.call(this)
+        } else {
+          store[key] = readFile(method, this.$store.orignal, args)
+        }
       }
 
       return store[key]
@@ -388,7 +474,7 @@
 
   // get `File`
   PromisifyFile.prototype.file = function (name, options) {
-    var file = new File(
+    var file = getFile(
       [this.$store.orignal],
       name || this.$store.orignal.name,
       options || this.$store.orignal
@@ -397,7 +483,7 @@
   }
 
   PromisifyFile.prototype.json = function (encoding, reviver) {
-    var parser = curryRight(JSON.parse)(reviver)
+    var parser = curryRight(JSON.parse, JSON)(reviver)
     return this.text(encoding || this.$options.encoding).then(parser)
   }
 
@@ -423,7 +509,7 @@
     return apply(
       createImageBitmap,
       root,
-      prepend(this.$store.orignal, arguments)
+      concat([this.$store.orignal], arguments)
     )
   }
 
@@ -537,6 +623,32 @@
     }
   }
 
+  var getDocumentOuterHTML = (function () {
+    var parser
+
+    function getDocumentOuterHTML (document) {
+      var outerHTML = document.documentElement.outerHTML
+      if (outerHTML) {
+        return outerHTML
+      }
+      if (!parser) {
+        parser = new XMLSerializer()
+      }
+      return parser.serializeToString(document)
+    }
+
+    return getDocumentOuterHTML
+  })()
+
+  var canvasToBlob = isFunction(root.HTMLCanvasElement.prototype.toBlob)
+    ? promisify(function (canvas, type, quality, resolve, reject) {
+      canvas.toBlob(resolve, type, quality)
+    })
+    : function (canvas, type, quality) {
+      var url = canvas.toDataURL(type, quality)
+      return parseBase64DataURL(url)
+    }
+
   function parseFromData (data, options) {
     var parser = curryRight(parseFromData)(options)
 
@@ -567,18 +679,16 @@
       return waitForFileReader(data).then(parser)
     }
 
-    if (type === 'Response' || type === 'Request') {
+    if (isBody(data)) {
       return data.blob()
     }
 
-    if (type === 'HTMLDocument' || type === 'XMLDocument') {
-      return parser(data.documentElement.outerHTML)
+    if (type === 'Document' || type === 'HTMLDocument' || type === 'XMLDocument') {
+      return parser(getDocumentOuterHTML(data))
     }
 
     if (type === 'HTMLCanvasElement') {
-      return new Promise(function (resolve) {
-        data.toBlob(resolve, options.type, options.quality)
-      })
+      return canvasToBlob(data, options.type, options.quality)
     }
 
     if (type === 'OffscreenCanvas') {
@@ -606,6 +716,10 @@
       return fetch(data).then(parser)
     }
 
+    if (!supportDataViewInBlobConstructor && isDataView(data)) {
+      return parser(data.buffer)
+    }
+
     // if (type === 'ArrayBuffer' || ArrayBuffer.isView(data)) {
     //   return new Blob([data])
     // }
@@ -617,6 +731,10 @@
     return new PromisifyFile(blob, options)
   }
 
+  if (toStringTag) {
+    PromisifyFile.prototype[toStringTag] = moduleName
+  }
+
   PromisifyFile.from = function parseData (data, options) {
     options = options || {}
     var blob = parseFromData(data, options)
@@ -625,5 +743,5 @@
     return promise.then(curryRight(getInstance)(options))
   }
 
-  return umdExport('PromisifyFile', PromisifyFile)
+  return umdExport(PromisifyFile)
 })()

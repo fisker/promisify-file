@@ -6,12 +6,10 @@ module.exports = {
       '@babel/preset-env',
       {
         targets: {
-          node: '0.8'
-        },
-        modules: false
+          ie: '6'
+        }
       }
-    ],
-    'babel-preset-minify',
+    ]
   ],
   moduleId: 'resolvify'
 }

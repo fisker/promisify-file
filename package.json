@@ -16,7 +16,7 @@
   "scripts": {
     "update-dependencies": "yarn upgrade-interactive --latest",
     "build": "rm -rf lib && mkdir lib && uglifyjs --compress --mangle --output lib/index.js -- src/index.js",
-    "test": "yarn build && jest",
+    "test": "yarn build && babel ./src/test.js -o ./lib/test.js && start ./test.html",
     "release": "np --no-yarn --no-cleanup"
   },
   "publishConfig": {
@@ -28,13 +28,15 @@
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
-    "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-minify": "^0.5.0",
+    "fetch-polyfill": "^0.8.2",
     "jest": "^23.6.0",
     "puppeteer": "^1.11.0",
     "regenerator-runtime": "^0.12.1",
-    "uglify-js": "^3.4.9"
+    "uglify-js": "^3.4.9",
+    "whatwg-fetch": "^3.0.0"
   },
   "files": [
     "LICENSE",
