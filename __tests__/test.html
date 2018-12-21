@@ -453,7 +453,9 @@
     })
 
     test('PromisifyFile.from(XMLHttpRequest responseType = document)', async () => {
-      var testURL = await new PromisifyFile(xmlBlob).dataURL()
+      var testURL = await new PromisifyFile(xmlBlob, {
+        type: 'text/xml'
+      }).dataURL()
       var xmlhttp = await new Promise(function (reslove) {
         var xmlhttp = new XMLHttpRequest()
         xmlhttp.open('get', testURL)
@@ -530,6 +532,7 @@
       })
       return isPF(pf, 'img') && (await pf.dataURL()).includes('jpeg')
     })
+
 
     test('PromisifyFile.from(ArrayBuffer)', async () => {
       var buffer = await imagePf.arrayBuffer()
