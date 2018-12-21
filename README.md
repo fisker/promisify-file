@@ -44,7 +44,7 @@ import PromisifyFile from 'promisify-file'
 syntax:
 
 ```js
-let pf = new PromisifyFile(data, options)
+let promisifyFile = new PromisifyFile(data, options)
 ```
 
 data must be a `Blob`(include `File`), for more data type support see [PromisifyFile.from](#PromisifyFile.from)
@@ -58,7 +58,7 @@ returns a `Promise` that resolves with a `PromisifyFile` Object
 syntax:
 
 ```js
-let pf = await PromisifyFile.from(data, options)
+let promisifyFile = await PromisifyFile.from(data, options)
 ```
 
 supported data types:
@@ -87,14 +87,14 @@ returns a `Promise` that resolves with the result `FileReader.readAs{ArrayBuffer
 syntax:
 
 ```js
-file.arrayBuffer()
+promisifyFile.arrayBuffer()
 
 // optional `encoding` use in `FileReader.readAsText`
-file.text([encoding])
+promisifyFile.text([encoding])
 
-file.dataURL()
+promisifyFile.dataURL()
 
-file.binaryString()
+promisifyFile.binaryString()
 ```
 
 Notice: **result of arrayBuffer / text / dataURL / binaryString is cached**
@@ -110,21 +110,21 @@ optional arguments `byteOffset` and `length` same as `TypedArray` syntax
 syntax:
 
 ```js
-file.int8Array([byteOffset [, length]])
+promisifyFile.int8Array([byteOffset [, length]])
 
-file.uint8Array([byteOffset [, length]])
+promisifyFile.uint8Array([byteOffset [, length]])
 
-file.uint8ClampedArray([byteOffset [, length]])
+promisifyFile.uint8ClampedArray([byteOffset [, length]])
 
-file.int16Array([byteOffset [, length]])
+promisifyFile.int16Array([byteOffset [, length]])
 
-file.uint16Array([byteOffset [, length]])
+promisifyFile.uint16Array([byteOffset [, length]])
 
-file.uint32Array([byteOffset [, length]])
+promisifyFile.uint32Array([byteOffset [, length]])
 
-file.float32Array([byteOffset [, length]])
+promisifyFile.float32Array([byteOffset [, length]])
 
-file.float64Array([byteOffset [, length]])
+promisifyFile.float64Array([byteOffset [, length]])
 ```
 
 links:
@@ -140,7 +140,7 @@ optional arguments `byteOffset` and `length` same as `DataView` syntax
 syntax:
 
 ```js
-file.dataView([byteOffset [, length]])
+promisifyFile.dataView([byteOffset [, length]])
 ```
 
 links:
@@ -156,7 +156,7 @@ optional argument `options` same as `Blob` syntax
 syntax:
 
 ```js
-file.blob([options]])
+promisifyFile.blob([options]])
 ```
 
 links:
@@ -172,7 +172,7 @@ optional arguments `name` and `options` same as `File` syntax
 syntax:
 
 ```js
-file.file([name [, options]])
+promisifyFile.file([name [, options]])
 ```
 
 Notice: **if name is omitted, and the orignal `Blob` don't has a name. a `TypeError` throws**
@@ -188,7 +188,7 @@ returns a `Promise` that resolves with the result of parsing blob text as JSON
 syntax:
 
 ```js
-file.json([encoding [, reviver]])
+promisifyFile.json([encoding [, reviver]])
 ```
 
 links:
@@ -202,7 +202,7 @@ returns a `Promise` that resolves with the result of `URL.createObjectURL` creat
 syntax:
 
 ```js
-file.url()
+promisifyFile.url()
 ```
 
 links:
@@ -216,7 +216,7 @@ returns a `Promise` that resolves with loaded `HTMLImageElement` create with blo
 syntax:
 
 ```js
-file.image()
+promisifyFile.image()
 ```
 
 links:
@@ -230,9 +230,9 @@ returns a `Promise` that resolves with `ImageBitmap` that `createImageBitmap` re
 syntax:
 
 ```js
-file.imageBitmap([options])
+promisifyFile.imageBitmap([options])
 
-file.imageBitmap(sx, sy, sw, sh[, options])
+promisifyFile.imageBitmap(sx, sy, sw, sh[, options])
 ```
 
 links:
@@ -247,7 +247,7 @@ returns a `Promise` that resolves with `ImageData` containing the image data of 
 syntax:
 
 ```js
-file.imageData([sx = 0[, sy = 0[, sw = image.width [, sh = image.height]]]])
+promisifyFile.imageData([sx = 0[, sy = 0[, sw = image.width [, sh = image.height]]]])
 ```
 
 links:
@@ -265,10 +265,10 @@ returns a `Promise` that resolves with `DOMParser.parseFromString` parsing blob 
 syntax:
 
 ```js
-file.document([encoding [, overrideMimeType]])
-file.xml([encoding]) // shortcut for file.document(encoding, 'application/xml')
-file.svg([encoding]) // shortcut for file.document(encoding, 'image/svg+xml')
-file.html([encoding]) // shortcut for file.document(encoding, 'text/html')
+promisifyFile.document([encoding [, overrideMimeType]])
+promisifyFile.xml([encoding]) // shortcut for promisifyFile.document(encoding, 'application/xml')
+promisifyFile.svg([encoding]) // shortcut for promisifyFile.document(encoding, 'image/svg+xml')
+promisifyFile.html([encoding]) // shortcut for promisifyFile.document(encoding, 'text/html')
 ```
 
 Notice:
