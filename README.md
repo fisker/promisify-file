@@ -78,6 +78,7 @@ supported data types:
 - [x] [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader/FileReader)
 - [x] [ImageData](https://developer.mozilla.org/en-US/docs/Web/API/ImageData)
 - [x] [ImageBitmap](https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap)
+- [x] DataURL (data:mimeType;Encoding,... or blob:...)
 
 ## methods
 

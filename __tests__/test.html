@@ -575,6 +575,13 @@
       return isPF(pf, 'img')
     })
 
+    test('PromisifyFile.from(FileReader.readAsDataURL)', async () => {
+      var fr = new FileReader()
+      fr.readAsDataURL(imageFile)
+      var pf = await PromisifyFile.from(fr)
+      return isPF(pf, 'img')
+    })
+
   </script>
 </body>
 </html>

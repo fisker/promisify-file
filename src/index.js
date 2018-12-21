@@ -13,6 +13,8 @@
   var URL = root.URL || root.webkitURL
   var createObjectURL = URL && URL.createObjectURL && URL.createObjectURL.bind(URL)
 
+  var fetch = window.fetch
+
   var OffscreenCanvas = root.OffscreenCanvas
   var DOMParser = root.DOMParser
 
@@ -521,6 +523,10 @@
     // if (type === 'ArrayBuffer' || ArrayBuffer.isView(data)) {
     //   return new Blob([data])
     // }
+
+    if (/^(blob|data):/.test(data)) {
+      return fetch(data).then(parser)
+    }
 
     return new Blob([data], options)
   }
