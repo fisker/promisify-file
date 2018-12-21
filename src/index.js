@@ -9,9 +9,8 @@
   var File = root.File
   var Image = root.Image
   var createImageBitmap = root.createImageBitmap
-
+  var atob = root.atob
   var URL = root.URL || root.webkitURL
-  var createObjectURL = URL && URL.createObjectURL && URL.createObjectURL.bind(URL)
 
   var fetch = window.fetch
 
@@ -20,6 +19,8 @@
 
   var concat = Array.prototype.concat
   var toString = Object.prototype.toString
+
+  var base64DataURLPattern = /^data:(.*?)?;base64,(.+)$/
 
   var fileReaderSupportedDataTypes = [
     'ArrayBuffer',
@@ -57,8 +58,12 @@
     return isObject(x) && isFunction(x.then)
   }
 
-  function isCanvasContext (x) {
-    return isObject(x) && isObject(x.canvas) && isFunction(x.canvas.getContext)
+  function isCanvas (x) {
+    return isObject(x) && isFunction(x.getContext)
+  }
+
+  function isRenderingContext (x) {
+    return isObject(x) && isCanvas(x.canvas)
   }
 
   function getType (x) {
@@ -69,38 +74,25 @@
     obj.addEventListener(type, listener, options || false)
   }
 
-  function waitForImage (image) {
-    if (image.naturalWidth) {
-      return Promise.resolve(image)
+  function promisify (func) {
+    function promised () {
+      var args = arguments
+      var context = this
+
+      return new Promise(function (resolve, reject) {
+        var result = apply(
+          curryRight(func, context)(resolve, reject),
+          context,
+          args
+        )
+
+        if (typeof result !== 'undefined') {
+          resolve(result)
+        }
+      })
     }
 
-    return new Promise(function (resolve, reject) {
-      on(image, 'load', function () {
-        resolve(image)
-      })
-      on(image, 'error', function () {
-        resolve(imageLoadError)
-      })
-    })
-  }
-
-  function waitForFileReader (fileReader) {
-    if (fileReader.result) {
-      return Promise.resolve(fileReader)
-    }
-
-    if (fileReader.error) {
-      return Promise.reject(fileReader.error)
-    }
-
-    return new Promise(function (resolve, reject) {
-      on(fileReader, 'load', function () {
-        resolve(fileReader.result)
-      })
-      on(fileReader, 'error', function () {
-        reject(fileReader.error)
-      })
-    })
+    return promised
   }
 
   /**
@@ -149,10 +141,66 @@
     return memoized
   }
 
+  /**
+   * Simple curryRight
+   * internal use only
+   * returns a function accept arguments except first argument
+   *
+   * @param  {Function} func
+   * @param  {any} context
+   * @returns  {Function}
+   */
+  function curryRight (func, context) {
+    var rest
+
+    function curried (first) {
+      return apply(
+        func,
+        context || this,
+        prepend(first, rest)
+      )
+    }
+
+    function setRest () {
+      rest = arguments
+      return curried
+    }
+
+    return setRest
+  }
+
+  /**
+   * prepend
+   * prepend first to rest
+   *
+   * @param  {any} first
+   * @param  {ArrayLike} rest
+   * @returns  {Array}
+   */
+  function prepend (first, rest) {
+    return apply(concat, [first], rest)
+  }
+
+  /**
+   * camelcase
+   * lowercase first letter
+   *
+   * @param  {String} s
+   * @returns  {String}
+   */
   var camelcase = memoize(function camelcase (s) {
     return s[0].toLowerCase() + s.slice(1)
   })
 
+
+  /**
+   * umdExport
+   * export mod as name
+   *
+   * @param  {String} name
+   * @param  {any} mod
+   * @returns  {any}
+   */
   function umdExport (name, mod) {
     var define = root.define
     var module = root.module
@@ -170,8 +218,73 @@
     return mod
   }
 
-  function prepend (first, rest) {
-    return apply(concat, [first], rest)
+  var waitForImage = promisify(function waitForImage (image, resolve, reject) {
+    if (image.naturalWidth) {
+      return resolve(image)
+    }
+
+    on(image, 'load', function () {
+      resolve(image)
+    })
+
+    on(image, 'error', function () {
+      resolve(imageLoadError)
+    })
+  })
+
+  var waitForFileReader = promisify(function waitForFileReader (fileReader, resolve, reject) {
+    if (fileReader.result) {
+      return resolve(fileReader)
+    }
+
+    if (fileReader.error) {
+      return reject(fileReader.error)
+    }
+
+    on(fileReader, 'load', function () {
+      resolve(fileReader.result)
+    })
+
+    on(fileReader, 'error', function () {
+      reject(fileReader.error)
+    })
+  })
+
+  var waitForXMLHttpRequest = promisify(function waitForXMLHttpRequest (xhr, resolve, reject) {
+    if (xhr.readyState === 4) {
+      return resolve(parseXHRData(xhr))
+    }
+
+    on(xhr, 'load', function () {
+      resolve(parseXHRData(xhr))
+    })
+    on(xhr, 'error', function () {
+      reject(xmlhttpLoadError)
+    })
+    on(xhr, 'timeout', function () {
+      reject(xmlhttpTimeoutError)
+    })
+  })
+
+  function parseBase64DataURL (url) {
+    var matches = String(url).match(base64DataURLPattern)
+
+    if (!matches) {
+      return
+    }
+
+    var mimeType = matches[1]
+    var bin = atob(matches[2])
+    var i = 0
+    var length = bin.length
+    var uint8Array = new Uint8Array(length)
+    for (; i < length; i++) {
+      uint8Array[i] = bin.charCodeAt(i)
+    }
+
+    return new Blob([uint8Array], {
+      type: mimeType
+    })
   }
 
   function PromisifyFile (data, options) {
@@ -258,6 +371,7 @@
       return this.arrayBuffer().then(arrayBufferParser)
     }
   }
+
   // get getArrayBufferView
   arrayBufferViews.forEach(function (viewType) {
     PromisifyFile.prototype[camelcase(viewType)] = getArrayBufferView(viewType)
@@ -282,21 +396,14 @@
     return Promise.resolve(file)
   }
 
-  // parse text content to `JSON`
-  function textToJSON (reviver) {
-    function JSONParser (text) {
-      return JSON.parse(text, reviver)
-    }
-    return JSONParser
-  }
-
   PromisifyFile.prototype.json = function (encoding, reviver) {
-    return this.text(encoding || this.$options.encoding).then(textToJSON(reviver))
+    var parser = curryRight(JSON.parse)(reviver)
+    return this.text(encoding || this.$options.encoding).then(parser)
   }
 
   // get `URL`
   PromisifyFile.prototype.url = function () {
-    var url = createObjectURL(this.$store.orignal)
+    var url = URL.createObjectURL(this.$store.orignal)
     return Promise.resolve(url)
   }
 
@@ -342,10 +449,10 @@
     return getCanvasContext
   })()
 
-  var getContext = OffscreenCanvas ? getOffscreenCanvasContext : getCanvasContext
+  var getRenderingContext = OffscreenCanvas ? getOffscreenCanvasContext : getCanvasContext
 
   function drawImage (image) {
-    var context = getContext(
+    var context = getRenderingContext(
       image.naturalWidth || image.width,
       image.naturalHeight || image.height
     )
@@ -354,33 +461,25 @@
   }
 
   function putImageData (data) {
-    var context = getContext(data.width, data.height)
+    var context = getRenderingContext(data.width, data.height)
     context.putImageData(data, 0, 0)
     return context
   }
 
-  function getImageDataByCanvas (image, sx, sy, sw, sh) {
-    sw = sw || image.naturalWidth
-    sh = sh || image.naturalHeight
+  function getImageData (image, sx, sy, sw, sh) {
+    sx = sx || 0
+    sy = sy || 0
+    sw = sw || image.naturalWidth || image.width
+    sh = sh || image.naturalHeight || image.height
 
     var context = drawImage(image)
 
     return context.getImageData(sx, sy, sw, sh)
   }
 
-  function getImageData (sx, sy, sw, sh) {
-    sx = sx || 0
-    sy = sy || 0
-
-    function getImageData (image) {
-      return getImageDataByCanvas(image, sx, sy, sw, sh)
-    }
-
-    return getImageData
-  }
-
   PromisifyFile.prototype.imageData = function (sx, sy, sw, sh) {
-    return this.image().then(getImageData(sx, sy, sw, sh))
+    var parser = curryRight(getImageData)(sx, sy, sw, sh)
+    return this.image().then(parser)
   }
 
   // DOMParser
@@ -394,82 +493,56 @@
     return document
   }
 
-  var getParserForMimeType = memoize(function (mime) {
-    var parser = new DOMParser()
+  var getDOMParser = (function () {
+    var parser
 
-    function parseDocument (text) {
-      var document = parser.parseFromString(text, mime)
+    function textToDocument (text, mimeType) {
+      if (!parser) {
+        parser = new DOMParser()
+      }
+      var document = parser.parseFromString(text, mimeType)
       return throwParserError(document)
     }
 
-    return parseDocument
-  })
-
-  function getDocument (mimeType) {
-    var parser = getParserForMimeType(mimeType)
-
-    return function (encoding) {
-      return this.text(encoding || this.$options.encoding).then(parser)
+    function getDOMParser (mimeType) {
+      return curryRight(textToDocument)(mimeType)
     }
+
+    return memoize(getDOMParser)
+  })()
+
+  function textToDocument (encoding, mimeType) {
+    encoding = encoding || this.$options.encoding
+    mimeType = mimeType || this.$store.orignal.type
+    var parser = getDOMParser(mimeType)
+    return this.text(encoding).then(parser)
   }
 
-  PromisifyFile.prototype.document = function (encoding, overrideMimeType) {
-    var mimeType = overrideMimeType || this.$store.orignal.type
-    return getDocument(mimeType).call(this, encoding)
-  }
-  PromisifyFile.prototype.xml = getDocument('application/xml')
-  PromisifyFile.prototype.svg = getDocument('image/svg+xml')
-  PromisifyFile.prototype.html = getDocument('text/html')
+  PromisifyFile.prototype.document = textToDocument
+  PromisifyFile.prototype.xml = curryRight(textToDocument)('application/xml')
+  PromisifyFile.prototype.svg = curryRight(textToDocument)('image/svg+xml')
+  PromisifyFile.prototype.html = curryRight(textToDocument)('text/html')
 
   function parseXHRData (xhr) {
-    var type = (xhr.responseType || 'text').toLowerCase()
-    var data
-    switch (type) {
+    switch (xhr.responseType) {
+      case '':
       case 'text':
-        data = xhr.responseText
-        break
+        return xhr.responseText
       case 'json':
-        data = JSON.stringify(xhr.response)
-        break
+        return JSON.stringify(xhr.response)
       case 'document':
         return xhr.responseXML
       default:
-        data = xhr.response
+        return xhr.response
     }
-
-    return new Blob([data])
-  }
-
-  function isXHRLoaded (xhr) {
-    return xhr.readyState === 4
-  }
-
-  function waitForXHRLoad (xhr) {
-    if (isXHRLoaded(xhr)) {
-      return Promise.resolve(parseXHRData(xhr))
-    }
-
-    return new Promise(function (resolve, reject) {
-      on(xhr, 'load', function () {
-        resolve(parseXHRData(xhr))
-      })
-      on(xhr, 'error', function () {
-        reject(xmlhttpLoadError)
-      })
-      on(xhr, 'timeout', function () {
-        reject(xmlhttpTimeoutError)
-      })
-    })
   }
 
   function parseFromData (data, options) {
-    function parser (data) {
-      return parseFromData(data, options)
-    }
+    var parser = curryRight(parseFromData)(options)
 
     // Promise
     if (isThenAble(data)) {
-      return isThenAble.then(parser)
+      return data.then(parser)
     }
 
     var type = getType(data)
@@ -479,7 +552,7 @@
     }
 
     if (type === 'XMLHttpRequest') {
-      return waitForXHRLoad(data).then(parser)
+      return waitForXMLHttpRequest(data).then(parser)
     }
 
     if (type === 'HTMLImageElement') {
@@ -516,25 +589,32 @@
       return parser(putImageData(data))
     }
 
-    if (isCanvasContext(data)) {
+    if (isRenderingContext(data)) {
       return parser(data.canvas)
+    }
+
+    if (base64DataURLPattern.test(data)) {
+      try {
+        var blob = parseBase64DataURL(data)
+        if (blob) {
+          return blob
+        }
+      } catch (err) {}
+    }
+
+    if (/^(?:blob|data):/.test(data)) {
+      return fetch(data).then(parser)
     }
 
     // if (type === 'ArrayBuffer' || ArrayBuffer.isView(data)) {
     //   return new Blob([data])
     // }
 
-    if (/^(blob|data):/.test(data)) {
-      return fetch(data).then(parser)
-    }
-
     return new Blob([data], options)
   }
 
-  function getInstance (options) {
-    return function (blob) {
-      return new PromisifyFile(blob, options)
-    }
+  function getInstance (blob, options) {
+    return new PromisifyFile(blob, options)
   }
 
   PromisifyFile.from = function parseData (data, options) {
@@ -542,7 +622,7 @@
     var blob = parseFromData(data, options)
     var promise = isThenAble(blob) ? blob : Promise.resolve(blob)
 
-    return promise.then(getInstance(options))
+    return promise.then(curryRight(getInstance)(options))
   }
 
   return umdExport('PromisifyFile', PromisifyFile)
