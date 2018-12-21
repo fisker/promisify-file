@@ -243,7 +243,7 @@
   })
 
   function getArrayBufferView (viewType) {
-    var TypedArray = window[viewType]
+    var TypedArray = root[viewType]
 
     return function getArrayBufferView (byteOffset, length) {
       function arrayBufferParser (buffer) {
