@@ -42,6 +42,7 @@
 
   var imageLoadError = new Error('GET image failed.')
   var xmlhttpLoadError = new Error('XMLHttpRequest load failed.')
+  var xmlhttpTimeoutError = new Error('XMLHttpRequest timeout.')
 
   function isObject (x) {
     return x !== null && typeof x === 'object'
@@ -63,22 +64,26 @@
     return toString.call(x).slice(8, -1)
   }
 
-  function waitForImageLoad (image) {
+  function on (obj, type, listener, options) {
+    obj.addEventListener(type, listener, options || false)
+  }
+
+  function waitForImage (image) {
     if (image.naturalWidth) {
       return Promise.resolve(image)
     }
 
     return new Promise(function (resolve, reject) {
-      image.addEventListener('load', function () {
+      on(image, 'load', function () {
         resolve(image)
-      }, false)
-      image.addEventListener('error', function () {
-        reject(imageLoadError)
-      }, false)
+      })
+      on(image, 'error', function () {
+        resolve(imageLoadError)
+      })
     })
   }
 
-  function waitForFileReaderLoad (fileReader) {
+  function waitForFileReader (fileReader) {
     if (fileReader.result) {
       return Promise.resolve(fileReader)
     }
@@ -88,12 +93,12 @@
     }
 
     return new Promise(function (resolve, reject) {
-      fileReader.addEventListener('load', function () {
+      on(fileReader, 'load', function () {
         resolve(fileReader.result)
-      }, false)
-      fileReader.addEventListener('error', function () {
+      })
+      on(fileReader, 'error', function () {
         reject(fileReader.error)
-      }, false)
+      })
     })
   }
 
@@ -200,7 +205,7 @@
   function readFile (method, blob, args) {
     var fileReader = new FileReader()
     apply(method, fileReader, prepend(blob, args || []))
-    return waitForFileReaderLoad(fileReader)
+    return waitForFileReader(fileReader)
   }
 
   function readFileAs (dataType) {
@@ -295,7 +300,7 @@
   function loadImage (src) {
     var image = new Image()
     image.src = src
-    return waitForImageLoad(image)
+    return waitForImage(image)
   }
 
   PromisifyFile.prototype.image = function () {
@@ -439,7 +444,7 @@
   }
 
   function isXHRLoaded (xhr) {
-    return xhr.readyState === 4 && xhr.status === 200
+    return xhr.readyState === 4
   }
 
   function waitForXHRLoad (xhr) {
@@ -448,27 +453,30 @@
     }
 
     return new Promise(function (resolve, reject) {
-      xhr.addEventListener('readystatechange', function () {
-        if (isXHRLoaded(xhr)) {
-          resolve(parseXHRData(xhr))
-        }
-      }, false)
-      xhr.addEventListener('error', function () {
+      on(xhr, 'load', function () {
+        resolve(parseXHRData(xhr))
+      })
+      on(xhr, 'error', function () {
         reject(xmlhttpLoadError)
-      }, false)
+      })
+      on(xhr, 'timeout', function () {
+        reject(xmlhttpTimeoutError)
+      })
     })
   }
 
   function parseFromData (data, options) {
-    var parser = function (data) {
+    function parser (data) {
       return parseFromData(data, options)
     }
 
+    // Promise
     if (isThenAble(data)) {
       return isThenAble.then(parser)
     }
 
     var type = getType(data)
+
     if (type === 'Blob' || type === 'File') {
       return data
     }
@@ -478,11 +486,11 @@
     }
 
     if (type === 'HTMLImageElement') {
-      return waitForImageLoad(data).then(drawImage).then(parser)
+      return waitForImage(data).then(drawImage).then(parser)
     }
 
     if (type === 'FileReader') {
-      return waitForFileReaderLoad(data).then(parser)
+      return waitForFileReader(data).then(parser)
     }
 
     if (type === 'Response' || type === 'Request') {
@@ -511,7 +519,13 @@
     //   return new Blob([data])
     // }
 
-    return new Blob([data])
+    return new Blob([data], options)
+  }
+
+  function getInstance (options) {
+    return function (blob) {
+      return new PromisifyFile(blob, options)
+    }
   }
 
   PromisifyFile.from = function parseData (data, options) {
@@ -519,9 +533,7 @@
     var blob = parseFromData(data, options)
     var promise = isThenAble(blob) ? blob : Promise.resolve(blob)
 
-    return promise.then(function (blob) {
-      return new PromisifyFile(blob, options)
-    })
+    return promise.then(getInstance(options))
   }
 
   return umdExport('PromisifyFile', PromisifyFile)

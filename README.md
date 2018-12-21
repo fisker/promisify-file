@@ -52,18 +52,20 @@ let pf = await PromisifyFile.from(data, options)
 ```
 
 data can be one of
-[`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
-[`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob/Blob)
-[`XMLHttpRequest`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest)
-[`Body`](https://developer.mozilla.org/en-US/docs/Web/API/Body)
-[`Document`](https://developer.mozilla.org/en-US/docs/Web/API/Document/Document)
-[`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
-[`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas)
-[`HTMLImageElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement)
-[`RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/RenderingContext)
-[`TypedArray`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)
-[`DataView`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView)
-[`FileReader`](https://developer.mozilla.org/en-US/docs/Web/API/FileReader/FileReader)
+[x][`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+[x][`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob/Blob)
+[x][`XMLHttpRequest`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest)
+[x][`Body`](https://developer.mozilla.org/en-US/docs/Web/API/Body)
+[x][`Document`](https://developer.mozilla.org/en-US/docs/Web/API/Document/Document)
+[x][`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
+[x][`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas)
+[x][`HTMLImageElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement)
+[x][`RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/RenderingContext)
+[x][`TypedArray`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)
+[x][`DataView`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView)
+[x][`FileReader`](https://developer.mozilla.org/en-US/docs/Web/API/FileReader/FileReader)
+[][`ImageData`](https://developer.mozilla.org/en-US/docs/Web/API/ImageData)
+[][ImageBitmap](https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap)
 
 ## methods
 
