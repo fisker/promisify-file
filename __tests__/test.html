@@ -545,6 +545,26 @@
       return isPF(pf, 'img')
     })
 
+    test('PromisifyFile.from(ImageData)', async () => {
+      var canvas = document.createElement('canvas')
+      var context = canvas.getContext('2d')
+      context.fillRect(0, 0, 100, 100)
+      var imageData = context.getImageData(0, 0, 1, 1)
+      var pf = await PromisifyFile.from(imageData)
+      var img = new Image()
+      img.src = await pf.url()
+      return isPF(pf, 'img') && (await pf.imageData()).data[3] === 255
+    })
+
+    test('PromisifyFile.from(imageBitmap)', async () => {
+      var imageBitmap = await createImageBitmap(imageFile)
+      var pf = await PromisifyFile.from(imageBitmap)
+
+      var img = new Image()
+      img.src = await pf.url()
+      return isPF(pf, 'img')
+    })
+
   </script>
 </body>
 </html>

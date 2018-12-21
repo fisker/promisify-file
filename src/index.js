@@ -319,20 +319,20 @@
   }
 
   // get `ImageData`
-  function getOffscreenCanvasContext (image) {
-    var canvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight)
+  function getOffscreenCanvasContext (width, height) {
+    var canvas = new OffscreenCanvas(width, height)
     return canvas.getContext('2d')
   }
 
   var getCanvasContext = (function () {
     var canvas
     var context
-    function getCanvasContext (image) {
+    function getCanvasContext (width, height) {
       canvas = canvas || (canvas = root.document.createElement('canvas'))
       context = context || (context = canvas.getContext('2d'))
 
-      canvas.width = image.naturalWidth
-      canvas.height = image.naturalHeight
+      canvas.width = width
+      canvas.height = height
 
       return context
     }
@@ -343,11 +343,17 @@
   var getContext = OffscreenCanvas ? getOffscreenCanvasContext : getCanvasContext
 
   function drawImage (image) {
-    var width = image.naturalWidth
-    var height = image.naturalHeight
+    var context = getContext(
+      image.naturalWidth || image.width,
+      image.naturalHeight || image.height
+    )
+    context.drawImage(image, 0, 0)
+    return context
+  }
 
-    var context = getContext(image)
-    context.drawImage(image, 0, 0, width, height)
+  function putImageData (data) {
+    var context = getContext(data.width, data.height)
+    context.putImageData(data, 0, 0)
     return context
   }
 
@@ -386,45 +392,32 @@
     return document
   }
 
-  var getParserForMimeType = (function () {
-    var parser
-    function parseDocument (mime) {
-      function parseDocument (text) {
-        parser = parser || (parser = new DOMParser())
-        var document = parser.parseFromString(text, mime)
-        return throwParserError(document)
-      }
+  var getParserForMimeType = memoize(function (mime) {
+    var parser = new DOMParser()
 
-      return parseDocument
+    function parseDocument (text) {
+      var document = parser.parseFromString(text, mime)
+      return throwParserError(document)
     }
 
-    return memoize(parseDocument)
-  })()
+    return parseDocument
+  })
 
-  function getDocumentByParser (parser) {
+  function getDocument (mimeType) {
+    var parser = getParserForMimeType(mimeType)
+
     return function (encoding) {
       return this.text(encoding || this.$options.encoding).then(parser)
     }
   }
 
-  function getDocumentByType (type) {
-    var parser = getParserForMimeType(DOMParserMimeType[type])
-    return getDocumentByParser(parser)
-  }
-  var DOMParserMimeType = {
-    xml: 'application/xml',
-    svg: 'image/svg+xml',
-    html: 'text/html'
-  }
   PromisifyFile.prototype.document = function (encoding, overrideMimeType) {
-    var parser = getParserForMimeType(
-      overrideMimeType || this.$store.orignal.type
-    )
-    return getDocumentByParser(parser).call(this, encoding)
+    var mimeType = overrideMimeType || this.$store.orignal.type
+    return getDocument(mimeType).call(this, encoding)
   }
-  PromisifyFile.prototype.xml = getDocumentByType('xml')
-  PromisifyFile.prototype.svg = getDocumentByType('svg')
-  PromisifyFile.prototype.html = getDocumentByType('html')
+  PromisifyFile.prototype.xml = getDocument('application/xml')
+  PromisifyFile.prototype.svg = getDocument('image/svg+xml')
+  PromisifyFile.prototype.html = getDocument('text/html')
 
   function parseXHRData (xhr) {
     var type = (xhr.responseType || 'text').toLowerCase()
@@ -491,6 +484,10 @@
       return waitForImage(data).then(drawImage).then(parser)
     }
 
+    if (type === 'ImageBitmap') {
+      return parser(drawImage(data))
+    }
+
     if (type === 'FileReader') {
       return waitForFileReader(data).then(parser)
     }
@@ -511,6 +508,10 @@
 
     if (type === 'OffscreenCanvas') {
       return data.convertToBlob(options)
+    }
+
+    if (type === 'ImageData') {
+      return parser(putImageData(data))
     }
 
     if (isCanvasContext(data)) {
