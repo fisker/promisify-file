@@ -150,6 +150,8 @@ var textFilePf = new PromisifyFile(textFile)
 var textBlobPf = new PromisifyFile(textBlob)
 var imagePf = new PromisifyFile(imageFile)
 
+console.log('-------', textFilePf.text())
+
 var container = document.getElementById('js-result')
 
 function showResult(testDesc, td, expect) {

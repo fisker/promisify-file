@@ -51,6 +51,9 @@
   var xmlhttpLoadError = new Error('XMLHttpRequest load failed.')
   var xmlhttpTimeoutError = new Error('XMLHttpRequest timeout.')
 
+  var curryLeft = curry('left', curry)('left')
+  var curryRight = curryLeft(curry)('right')
+
   var supports = {
     // ie don't support DataView As Blob parts
     blobConstructorWithDataView: (function() {
@@ -72,7 +75,8 @@
         return false
       }
     })(),
-    offscreenCanvas: isFunction(OffscreenCanvas)
+    offscreenCanvas: isFunction(OffscreenCanvas),
+    readAsBinaryString: FileReader.prototype.readAsBinaryString
   }
 
   function isObject(x) {
@@ -138,7 +142,7 @@
 
       return new Promise(function(resolve, reject) {
         var result = apply(
-          curryRight(func, context)(resolve, reject),
+          curryLeft(func, context)(resolve, reject),
           context,
           args
         )
@@ -192,26 +196,28 @@
       if (!cache[key]) {
         cache[key] = apply(func, this, arguments)
       }
-
       return cache[key]
     }
     return memoized
   }
 
   /**
-   * Simple curryRight
+   * Simple curry
    * internal use only
    * returns a function accept argumentst
    *
+   * @param  {String} side (left | right)
    * @param  {Function} func
    * @param  {any} context
    * @returns  {Function}
    */
-  function curryRight(func, context) {
+  function curry(side, func, context) {
     var rest
 
     function curried() {
-      return apply(func, context || this, concat(arguments, rest))
+      var args =
+        side === 'left' ? concat(rest, arguments) : concat(arguments, rest)
+      return apply(func, context || this, args)
     }
 
     function setRest() {
@@ -226,7 +232,7 @@
    * concat two ArrayLike
    *
    * @param  {ArrayLike} first
-   * @param  {ArrayLike} first
+   * @param  {ArrayLike} second
    * @returns  {Array}
    */
   function concat(first, second) {
@@ -284,7 +290,7 @@
         return blob
       }
 
-  var waitForImage = promisify(function waitForImage(image, resolve, reject) {
+  var waitForImage = promisify(function waitForImage(resolve, reject, image) {
     if (image.naturalWidth) {
       return resolve(image)
     }
@@ -299,9 +305,9 @@
   })
 
   var waitForFileReader = promisify(function waitForFileReader(
-    fileReader,
     resolve,
-    reject
+    reject,
+    fileReader
   ) {
     if (fileReader.result) {
       return resolve(fileReader.result)
@@ -321,9 +327,9 @@
   })
 
   var waitForXMLHttpRequest = promisify(function waitForXMLHttpRequest(
-    xhr,
     resolve,
-    reject
+    reject,
+    xhr
   ) {
     if (xhr.readyState === 4) {
       return resolve(parseXHRData(xhr))
@@ -392,80 +398,84 @@
     }
     this.$options = options
   }
+  var proto = PromisifyFile.prototype
 
   // use FileReader `readAs...` method
-  function readFile(method, blob, args) {
-    var fileReader = new FileReader()
-    apply(method, fileReader, concat([blob], args || []))
-    return waitForFileReader(fileReader)
-  }
 
   function arrayBufferToBinaryString(buffer) {
     var bytes = new Uint8Array(buffer)
     return apply(fromCharCode, String, bytes)
   }
 
-  function readFileAs(dataType) {
+  function readFile(method, blob, encoding) {
+    var fileReader = new FileReader()
+    var args = concat([blob], encoding ? [encoding] : [])
+    apply(method, fileReader, args)
+    return waitForFileReader(fileReader)
+  }
+
+  var getFileReader = memoize(function getFileReader(dataType) {
     var method = FileReader.prototype['readAs' + dataType]
+    return curryLeft(readFile)(method)
+  })
+
+  function getFileReaderResult(fileReader, dataType, encoding) {
+    var store = this.$store
     var storeKey = camelcase(dataType)
 
-    function fileReader() {
-      var store = this.$store
-      var key = storeKey
-      var args = []
-
-      if (dataType === 'Text') {
-        var encoding = arguments[0] || this.$options.encoding
-        if (encoding) {
-          args[0] = encoding
-        }
-        store = store.text || (store.text = {})
-        key = String(encoding || 'UTF-8').toUpperCase()
-      }
-
-      if (!store[key]) {
-        // ie don't support readAsBinaryString
-        if (dataType === 'BinaryString' && !method) {
-          store[key] = this.arrayBuffer().then(arrayBufferToBinaryString)
-        } else {
-          store[key] = readFile(method, this.$store.blob, args)
-        }
-      }
-
-      return store[key]
+    if (dataType === 'Text') {
+      encoding = encoding || this.$options.encoding
+      storeKey += '.' + String(encoding || 'UTF-8').toUpperCase()
     }
 
-    return fileReader
+    if (!store[storeKey]) {
+      // ie don't support readAsBinaryString
+      if (dataType === 'BinaryString' && !supports.readAsBinaryString) {
+        store[storeKey] = this.arrayBuffer().then(arrayBufferToBinaryString)
+      } else {
+        store[storeKey] = fileReader(this.$store.blob, encoding)
+      }
+    }
+
+    return store[storeKey]
   }
 
   fileReaderSupportedDataTypes.forEach(function(dataType) {
-    PromisifyFile.prototype[camelcase(dataType)] = readFileAs(dataType)
+    var fileReader = getFileReader(dataType)
+    proto[camelcase(dataType)] = curryLeft(getFileReaderResult)(
+      fileReader,
+      dataType
+    )
   })
 
-  function getArrayBufferView(viewType) {
-    var TypedArray = root[viewType]
+  function arrayBufferToView(TypedArray, buffer, byteOffset, length) {
+    return new TypedArray(buffer, byteOffset, length)
+  }
 
-    return function getArrayBufferView(byteOffset, length) {
-      function arrayBufferParser(buffer) {
-        return new TypedArray(buffer, byteOffset, length)
-      }
-      return this.arrayBuffer().then(arrayBufferParser)
-    }
+  var getArrayBufferParser = memoize(function getDOMParser(viewType) {
+    var TypedArray = root[viewType]
+    return curryLeft(arrayBufferToView)(TypedArray)
+  })
+
+  function toArrayBufferView(parser, byteOffset, length) {
+    parser = curryRight(parser)(byteOffset, length)
+    return this.arrayBuffer().then(parser)
   }
 
   // get getArrayBufferView
   arrayBufferViews.forEach(function(viewType) {
-    PromisifyFile.prototype[camelcase(viewType)] = getArrayBufferView(viewType)
+    var parser = getArrayBufferParser(viewType)
+    proto[camelcase(viewType)] = curryLeft(toArrayBufferView)(parser)
   })
 
   // get `Blob`
-  PromisifyFile.prototype.blob = function(options) {
+  proto.blob = function(options) {
     var blob = new Blob([this.$store.blob], options || this.$store.blob)
     return Promise.resolve(blob)
   }
 
   // get `File`
-  PromisifyFile.prototype.file = function(name, options) {
+  proto.file = function(name, options) {
     var file = constructFile(
       [this.$store.blob],
       name || this.$store.blob.name,
@@ -474,13 +484,13 @@
     return Promise.resolve(file)
   }
 
-  PromisifyFile.prototype.json = function(encoding, reviver) {
+  proto.json = function(encoding, reviver) {
     var parser = curryRight(JSON.parse, JSON)(reviver)
     return this.text(encoding || this.$options.encoding).then(parser)
   }
 
   // get `URL`
-  PromisifyFile.prototype.url = function() {
+  proto.url = function() {
     var url = URL.createObjectURL(this.$store.blob)
     return Promise.resolve(url)
   }
@@ -492,12 +502,12 @@
     return waitForImage(image)
   }
 
-  PromisifyFile.prototype.image = function() {
+  proto.image = function() {
     return this.dataURL().then(loadImage)
   }
 
   // get `ImageBitmap`
-  PromisifyFile.prototype.imageBitmap = function() {
+  proto.imageBitmap = function() {
     return apply(createImageBitmap, root, concat([this.$store.blob], arguments))
   }
 
@@ -539,7 +549,7 @@
     return context.getImageData(sx, sy, sw, sh)
   }
 
-  PromisifyFile.prototype.imageData = function(sx, sy, sw, sh) {
+  proto.imageData = function(sx, sy, sw, sh) {
     var parser = curryRight(getImageData)(sx, sy, sw, sh)
     return this.image().then(parser)
   }
@@ -573,10 +583,10 @@
     return this.text(encoding).then(parser)
   }
 
-  PromisifyFile.prototype.document = toDocument
-  PromisifyFile.prototype.xml = curryRight(toDocument)('application/xml')
-  PromisifyFile.prototype.svg = curryRight(toDocument)('image/svg+xml')
-  PromisifyFile.prototype.html = curryRight(toDocument)('text/html')
+  proto.document = toDocument
+  proto.xml = curryRight(toDocument)('application/xml')
+  proto.svg = curryRight(toDocument)('image/svg+xml')
+  proto.html = curryRight(toDocument)('text/html')
 
   function parseXHRData(xhr) {
     switch (xhr.responseType) {
@@ -599,7 +609,7 @@
     )
   }
 
-  var canvasToBlob = promisify(function(canvas, options, resolve, reject) {
+  var canvasToBlob = promisify(function(resolve, reject, canvas, options) {
     if (canvas.convertToBlob) {
       return canvas.convertToBlob(options)
     }
@@ -697,7 +707,7 @@
   }
 
   if (toStringTag) {
-    PromisifyFile.prototype[toStringTag] = moduleName
+    proto[toStringTag] = moduleName
   }
 
   PromisifyFile.from = function parseData(data, options) {
