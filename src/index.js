@@ -5,7 +5,8 @@
 
   var FileReader = root.FileReader
   var Promise = root.Promise
-  var toStringTag = root.Symbol && root.Symbol.toStringTag
+  var Symbol = root.Symbol
+  var toStringTag = Symbol && Symbol.toStringTag
   var Blob = root.Blob
   var File = root.File
   var Image = root.Image
@@ -49,15 +50,30 @@
   var imageLoadError = new Error('GET image failed.')
   var xmlhttpLoadError = new Error('XMLHttpRequest load failed.')
   var xmlhttpTimeoutError = new Error('XMLHttpRequest timeout.')
-  // ie don't support DataView As Blob parts
-  var supportDataViewInBlobConstructor = (function () {
-    try {
-      new Blob([new DataView(new ArrayBuffer())]) // eslint-disable-line
-      return true
-    } catch (err) {
-      return false
-    }
-  })()
+
+  var supports = {
+    // ie don't support DataView As Blob parts
+    blobConstructorWithDataView: (function () {
+      try {
+        var arrayBuffer = new ArrayBuffer()
+        var dataView = new DataView(arrayBuffer)
+        var blob = new Blob([blob])
+        return isObject(blob)
+      } catch (err) {
+        return false
+      }
+    })(),
+    // is do't support File Constructor
+    fileConstructor: (function () {
+      try {
+        var file = new File([], '')
+        return isObject(file)
+      } catch (err) {
+        return false
+      }
+    })(),
+    offscreenCanvas: isFunction(OffscreenCanvas)
+  }
 
   function isObject (x) {
     return x !== null && typeof x === 'object'
@@ -81,6 +97,14 @@
 
   function isArrayBuffer (x) {
     return isObject(x) && getType(x) === 'ArrayBuffer'
+  }
+
+  function isDocument (x) {
+    return (
+      isObject(x) && 
+      isObject(x.documentElement) &&
+      isFunction(x.createElement)
+    )
   }
 
   // ie DataView.toString is [object Object]
@@ -263,32 +287,18 @@
     return mod
   }
 
-  var getFile = (function () {
-    function testFileSupport () {
-      try {
-        new File([], 'test') // eslint-disable-line
-        return true
-      } catch (err) {
-        return false
-      }
-    }
-
-    var getFile = function getFile (parts, fileName, options) {
+  var constructFile = supports.fileConstructor
+    ? function (parts, fileName, options) {
       return new File(parts, fileName, options)
     }
-    var supportNewFile = testFileSupport()
-
-    if (!supportNewFile) {
-      getFile = function getFile (parts, fileName, options) {
-        var blob = new Blob(parts, options)
-        blob.name = fileName
-        blob.lastModified = options.lastModified || Date.now()
-        return blob
-      }
+    // use Blob as as fake File
+    : function (parts, fileName, options) {
+      var blob = new Blob(parts, options)
+      blob.name = fileName
+      // blob.type = options.type
+      blob.lastModified = options.lastModified || Date.now()
+      return blob
     }
-
-    return getFile
-  })()
 
   var waitForImage = promisify(function waitForImage (image, resolve, reject) {
     if (image.naturalWidth) {
@@ -373,7 +383,7 @@
       lastModified !== data.lastModified
     ) {
       if (name) {
-        blob = getFile([data], name, {
+        blob = constructFile([data], name, {
           type: type,
           lastModified: lastModified
         })
@@ -385,7 +395,8 @@
     }
 
     this.$store = {
-      orignal: blob
+      orignal: data,
+      blob: blob
     }
     this.$options = options
   }
@@ -393,17 +404,17 @@
   // use FileReader `readAs...` method
   function readFile (method, blob, args) {
     var fileReader = new FileReader()
-    apply(method, fileReader, concat([blob], args || []))
+    apply(
+      method,
+      fileReader,
+      concat([blob], args || [])
+    )
     return waitForFileReader(fileReader)
   }
 
   function arrayBufferToBinaryString (buffer) {
     var bytes = new Uint8Array(buffer)
     return apply(fromCharCode, String, bytes)
-  }
-
-  function readAsBinaryString (file) {
-    return this.arrayBuffer().then(arrayBufferToBinaryString)
   }
 
   function readFileAs (dataType) {
@@ -427,9 +438,9 @@
       if (!store[key]) {
         // ie don't support readAsBinaryString
         if (dataType === 'BinaryString' && !method) {
-          store[key] = readAsBinaryString.call(this)
+          store[key] = this.arrayBuffer().then(arrayBufferToBinaryString)
         } else {
-          store[key] = readFile(method, this.$store.orignal, args)
+          store[key] = readFile(method, this.$store.blob, args)
         }
       }
 
@@ -466,18 +477,18 @@
   // get `Blob`
   PromisifyFile.prototype.blob = function (options) {
     var blob = new Blob(
-      [this.$store.orignal],
-      options || this.$store.orignal
+      [this.$store.blob],
+      options || this.$store.blob
     )
     return Promise.resolve(blob)
   }
 
   // get `File`
   PromisifyFile.prototype.file = function (name, options) {
-    var file = getFile(
-      [this.$store.orignal],
-      name || this.$store.orignal.name,
-      options || this.$store.orignal
+    var file = constructFile(
+      [this.$store.blob],
+      name || this.$store.blob.name,
+      options || this.$store.blob
     )
     return Promise.resolve(file)
   }
@@ -489,7 +500,7 @@
 
   // get `URL`
   PromisifyFile.prototype.url = function () {
-    var url = URL.createObjectURL(this.$store.orignal)
+    var url = URL.createObjectURL(this.$store.blob)
     return Promise.resolve(url)
   }
 
@@ -509,36 +520,24 @@
     return apply(
       createImageBitmap,
       root,
-      concat([this.$store.orignal], arguments)
+      concat([this.$store.blob], arguments)
     )
   }
 
-  // get `ImageData`
-  function getOffscreenCanvasContext (width, height) {
-    var canvas = new OffscreenCanvas(width, height)
-    return canvas.getContext('2d')
-  }
-
-  var getCanvasContext = (function () {
-    var canvas
-    var context
-    function getCanvasContext (width, height) {
-      canvas = canvas || (canvas = root.document.createElement('canvas'))
-      context = context || (context = canvas.getContext('2d'))
-
+  var getRenderingContext2D = supports.offscreenCanvas
+    ? function getOffscreenCanvasRenderingContext2D (width, height) {
+      var canvas = new OffscreenCanvas(width, height)
+      return canvas.getContext('2d')
+    }
+    : function getCanvasRenderingContext2D (width, height) {
+      var canvas = root.document.createElement('canvas')
       canvas.width = width
       canvas.height = height
-
-      return context
+      return canvas.getContext('2d')
     }
 
-    return getCanvasContext
-  })()
-
-  var getRenderingContext = OffscreenCanvas ? getOffscreenCanvasContext : getCanvasContext
-
   function drawImage (image) {
-    var context = getRenderingContext(
+    var context = getRenderingContext2D(
       image.naturalWidth || image.width,
       image.naturalHeight || image.height
     )
@@ -547,7 +546,7 @@
   }
 
   function putImageData (data) {
-    var context = getRenderingContext(data.width, data.height)
+    var context = getRenderingContext2D(data.width, data.height)
     context.putImageData(data, 0, 0)
     return context
   }
@@ -578,36 +577,29 @@
 
     return document
   }
+  
+  function textToDocument (text, mimeType) {
+    var parser = new DOMParser()
+    var document = parser.parseFromString(text, mimeType)
+    throwParserError(document)
+    return document
+  }
+  
+  var getDOMParser = memoize(function getDOMParser(mimeType) {
+    return curryRight(textToDocument)(mimeType)
+  })
 
-  var getDOMParser = (function () {
-    var parser
-
-    function textToDocument (text, mimeType) {
-      if (!parser) {
-        parser = new DOMParser()
-      }
-      var document = parser.parseFromString(text, mimeType)
-      return throwParserError(document)
-    }
-
-    function getDOMParser (mimeType) {
-      return curryRight(textToDocument)(mimeType)
-    }
-
-    return memoize(getDOMParser)
-  })()
-
-  function textToDocument (encoding, mimeType) {
+  function toDocument (encoding, mimeType) {
     encoding = encoding || this.$options.encoding
-    mimeType = mimeType || this.$store.orignal.type
+    mimeType = mimeType || this.$store.blob.type
     var parser = getDOMParser(mimeType)
     return this.text(encoding).then(parser)
   }
 
-  PromisifyFile.prototype.document = textToDocument
-  PromisifyFile.prototype.xml = curryRight(textToDocument)('application/xml')
-  PromisifyFile.prototype.svg = curryRight(textToDocument)('image/svg+xml')
-  PromisifyFile.prototype.html = curryRight(textToDocument)('text/html')
+  PromisifyFile.prototype.document = toDocument
+  PromisifyFile.prototype.xml = curryRight(toDocument)('application/xml')
+  PromisifyFile.prototype.svg = curryRight(toDocument)('image/svg+xml')
+  PromisifyFile.prototype.html = curryRight(toDocument)('text/html')
 
   function parseXHRData (xhr) {
     switch (xhr.responseType) {
@@ -623,31 +615,25 @@
     }
   }
 
-  var getDocumentOuterHTML = (function () {
-    var parser
+  function documentToString (document) {
+    return document.documentElement.outerHTML ||
+      new XMLSerializer().serializeToString(document)
+  }
 
-    function getDocumentOuterHTML (document) {
-      var outerHTML = document.documentElement.outerHTML
-      if (outerHTML) {
-        return outerHTML
-      }
-      if (!parser) {
-        parser = new XMLSerializer()
-      }
-      return parser.serializeToString(document)
+  var canvasToBlob = promisify(function (canvas, options, resolve, reject) {
+    if (canvas.convertToBlob) {
+      return canvas.convertToBlob(options)
     }
 
-    return getDocumentOuterHTML
-  })()
-
-  var canvasToBlob = isFunction(root.HTMLCanvasElement.prototype.toBlob)
-    ? promisify(function (canvas, type, quality, resolve, reject) {
-      canvas.toBlob(resolve, type, quality)
-    })
-    : function (canvas, type, quality) {
-      var url = canvas.toDataURL(type, quality)
-      return parseBase64DataURL(url)
+    if (canvas.toBlob) {
+      canvas.toBlob(resolve, options.type, options.quality)
+      return
     }
+
+    var url = canvas.toDataURL(options.type, options.qualit)
+    var blob = parseBase64DataURL(url)
+    return resolve(blob)
+  })
 
   function parseFromData (data, options) {
     var parser = curryRight(parseFromData)(options)
@@ -675,6 +661,10 @@
       return parser(drawImage(data))
     }
 
+    if (type === 'ImageData') {
+      return parser(putImageData(data))
+    }
+
     if (type === 'FileReader') {
       return waitForFileReader(data).then(parser)
     }
@@ -683,22 +673,16 @@
       return data.blob()
     }
 
-    if (type === 'Document' || type === 'HTMLDocument' || type === 'XMLDocument') {
-      return parser(getDocumentOuterHTML(data))
+    if (isDocument(data)) {
+      return parser(documentToString(data))
     }
 
-    if (type === 'HTMLCanvasElement') {
-      return canvasToBlob(data, options.type, options.quality)
+    // HTMLCanvasElement and OffscreenCanvas
+    if (isCanvas(data)) {
+      return canvasToBlob(data, options)
     }
 
-    if (type === 'OffscreenCanvas') {
-      return data.convertToBlob(options)
-    }
-
-    if (type === 'ImageData') {
-      return parser(putImageData(data))
-    }
-
+    // RenderingContext
     if (isRenderingContext(data)) {
       return parser(data.canvas)
     }
@@ -716,7 +700,7 @@
       return fetch(data).then(parser)
     }
 
-    if (!supportDataViewInBlobConstructor && isDataView(data)) {
+    if (!supports.blobConstructorWithDataView && isDataView(data)) {
       return parser(data.buffer)
     }
 

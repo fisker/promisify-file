@@ -1,3 +1,17 @@
+window.regeneratorRuntime = require('regenerator-runtime')
+
+if (!window.Promise) {
+  require('core-js/es6/promise')
+}
+
+if (!window.fetch) {
+  require('whatwg-fetch')
+}
+if (!window.Uint8ClampedArray) {
+  require('core-js/fn/typed/uint8-clamped-array')
+}
+
+require('./index.js')
 
 var testText = 'hello promisify-file'
 var imageArr = [
