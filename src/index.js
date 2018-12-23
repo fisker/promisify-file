@@ -1,3 +1,4 @@
+/* globals define: true, module: true */
 ;(function() {
   'use strict'
 
@@ -262,9 +263,6 @@
    * @returns  {any}
    */
   function umdExport(mod) {
-    var define = root.define
-    var module = root.module
-
     if (isFunction(define) && define.amd) {
       define(moduleName, [], function() {
         return mod

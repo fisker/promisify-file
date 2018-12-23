@@ -11,7 +11,7 @@ if (!window.Uint8ClampedArray) {
   require('core-js/fn/typed/uint8-clamped-array')
 }
 
-require('./index.js')
+var PromisifyFile = require('./index.js')
 
 var testText = 'hello promisify-file'
 var imageArr = [
