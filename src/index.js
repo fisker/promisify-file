@@ -61,7 +61,7 @@
       try {
         var arrayBuffer = new ArrayBuffer()
         var dataView = new DataView(arrayBuffer)
-        var blob = new Blob([blob])
+        var blob = new Blob([dataView])
         return isObject(blob)
       } catch (err) {
         return false
@@ -95,6 +95,14 @@
   function isCanvas(x) {
     return isObject(x) && isFunction(x.getContext)
   }
+
+  // function isHTMLCanvasElement(x) {
+  //   return isCanvas(x) && getType(x) === 'HTMLCanvasElement'
+  // }
+
+  // function isOffscreenCanvas(x) {
+  //   return isCanvas(x) && getType(x) === 'OffscreenCanvas'
+  // }
 
   function isRenderingContext(x) {
     return isObject(x) && isCanvas(x.canvas)
@@ -607,17 +615,13 @@
     )
   }
 
-  var canvasToBlob = promisify(function(resolve, reject, canvas, options) {
-    if (canvas.convertToBlob) {
-      return canvas.convertToBlob(options)
-    }
-
+  var canvasToBlob = promisify(function(resolve, reject, canvas, type, quality) {
     if (canvas.toBlob) {
-      canvas.toBlob(resolve, options.type, options.quality)
+      canvas.toBlob(resolve, type, quality)
       return
     }
 
-    var url = canvas.toDataURL(options.type, options.qualit)
+    var url = canvas.toDataURL(type, quality)
     var blob = parseBase64DataURL(url)
     return resolve(blob)
   })
@@ -666,9 +670,14 @@
       return parser(documentToString(data))
     }
 
-    // HTMLCanvasElement and OffscreenCanvas
-    if (isCanvas(data)) {
-      return canvasToBlob(data, options)
+    // HTMLCanvasElement
+    if (type === 'HTMLCanvasElement') {
+      return canvasToBlob(data, options.type, options.quality)
+    }
+
+    // OffscreenCanvas
+    if (type === 'OffscreenCanvas') {
+      return data.convertToBlob(options)
     }
 
     // RenderingContext

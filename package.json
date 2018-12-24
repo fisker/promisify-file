@@ -14,10 +14,10 @@
     "url": "https://github.com/fisker"
   },
   "scripts": {
-    "start": "cp -r ./fixture ./dist/fixture && parcel ./src/index.html --open",
+    "start": "rm -rf dist && mkdir dist && cp -r ./fixture ./dist/fixture && parcel ./src/index.html --open",
     "update-dependencies": "yarn upgrade-interactive --latest",
     "build": "rm -rf lib && mkdir lib && uglifyjs --compress --mangle --output lib/index.js -- src/index.js",
-    "test": "yarn build && babel ./src/test.js -o ./lib/test.js",
+    "test": "echo no-test",
     "release": "np --no-yarn --no-cleanup"
   },
   "publishConfig": {

@@ -11,16 +11,18 @@ module.exports = {
       'prettier'
     ],
     rules: {
+      // allow unnamed function
+      'func-names': 0,
       // allow unused vars
       'no-unused-vars': 1,
       // allow vars not on top
-      'vars-on-top': 1,
+      'vars-on-top': 0,
       // allow function use before define
-      'no-use-before-define': 1,
+      'no-use-before-define': 0,
       // allow param reassign
-      'no-param-reassign': 1,
+      'no-param-reassign': 0,
       // allow function returns no value
-      'consistent-return': 1,
+      'consistent-return': 0,
       // allow empty catch
       'no-empty': [
         'error',
