@@ -85,7 +85,6 @@ var imageArr = [
   130
 ]
 
-
 var getFile = (function () {
   function testFileSupport () {
     try {
@@ -113,6 +112,8 @@ var getFile = (function () {
 
   return getFile
 })()
+
+;(async () => {
 
 var ts = Date.now()
 var imageBIN = imageArr
@@ -146,11 +147,13 @@ var svgFile = getFile(
   }
 )
 
-var textFilePf = new PromisifyFile(textFile)
-var textBlobPf = new PromisifyFile(textBlob)
-var imagePf = new PromisifyFile(imageFile)
-
-console.log('-------', textFilePf.text())
+var textFilePf = await PromisifyFile.from(fetch('./fixture/text.txt'))
+var textBlobPf = await PromisifyFile.from(fetch('./fixture/text.txt'), {
+  name: 'text.txt'
+})
+var imagePf = await PromisifyFile.from(fetch('./fixture/image.png'), {
+  name: 'image.png'
+})
 
 var container = document.getElementById('js-result')
 
@@ -287,7 +290,8 @@ test('imageData', async () => {
 test(
   'document',
   async () => {
-    var document = await new PromisifyFile(xmlFile).document()
+    var pf = await PromisifyFile.from(fetch('./fixture/xml.xml'))
+    var document = await pf.document()
     var type = Object.prototype.toString.call(document).slice(8, -1)
     return type === 'XMLDocument' || type === 'Document'
   }
@@ -649,17 +653,16 @@ if (window.OffscreenCanvas) {
     return isPF(pf, 'img') && (await pf.dataURL()).includes('jpeg')
   })
 }
-if (document.createElement('canvas').getContext('bitmaprenderer')) {
+
+var ibrc = document.createElement('canvas').getContext('bitmaprenderer')
+if (ibrc && ibrc.canvas) {
   test('PromisifyFile.from(ImageBitmapRenderingContext)', async () => {
-    var pf = await PromisifyFile.from(
-      document.createElement('canvas').getContext('bitmaprenderer')
-    )
+    var pf = await PromisifyFile.from(ibrc)
     return isPF(pf) && (await pf.image()).width === 300
   })
 }
 
 if (window.createImageBitmap) {
-
   test('imageBitmap', async () => {
     var imageBitmap = await imagePf.imageBitmap()
     return imageBitmap.height === 1 && imageBitmap.width === 1
@@ -674,3 +677,5 @@ if (window.createImageBitmap) {
     return isPF(pf, 'img')
   })
 }
+
+})()
