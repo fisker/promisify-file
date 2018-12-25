@@ -29,6 +29,7 @@
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
+    "@xwtec/eslint-config": "^1.0.1",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^23.6.0",
     "babel-polyfill": "^6.26.0",

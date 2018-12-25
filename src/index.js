@@ -615,7 +615,13 @@
     )
   }
 
-  var canvasToBlob = promisify(function(resolve, reject, canvas, type, quality) {
+  var canvasToBlob = promisify(function(
+    resolve,
+    reject,
+    canvas,
+    type,
+    quality
+  ) {
     if (canvas.toBlob) {
       canvas.toBlob(resolve, type, quality)
       return

@@ -1,41 +1,5 @@
 module.exports = {
-    root: true,
-    parser: require.resolve('babel-eslint'),
-    env: {
-      es6: true,
-      node: true,
-      browser: true
-    },
-    extends: [
-      'airbnb-base/legacy',
-      'prettier'
-    ],
-    rules: {
-      // allow unnamed function
-      'func-names': 0,
-      // allow unused vars
-      'no-unused-vars': 1,
-      // allow vars not on top
-      'vars-on-top': 0,
-      // allow function use before define
-      'no-use-before-define': 0,
-      // allow param reassign
-      'no-param-reassign': 0,
-      // allow function returns no value
-      'consistent-return': 0,
-      // allow empty catch
-      'no-empty': [
-        'error',
-        {
-          allowEmptyCatch: true
-        }
-      ],
-      // allow plusplus in loop
-      'no-plusplus': [
-        'error',
-        {
-          allowForLoopAfterthoughts: true
-        }
-      ]
-    }
-  }
+  extends: [
+    '@xwtec/eslint-config/legacy/no-semi'
+  ]
+}
