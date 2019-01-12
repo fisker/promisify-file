@@ -14,6 +14,7 @@
   var createImageBitmap = root.createImageBitmap
   var atob = root.atob
   var URL = root.URL || root.webkitURL
+  var parseJSON = JSON.parse.bind(JSON)
 
   var fetch = window.fetch
 
@@ -22,8 +23,12 @@
   var XMLSerializer = root.XMLSerializer
 
   var push = Array.prototype.push
+  var slice = Array.prototype.slice
   var toString = Object.prototype.toString
   var fromCharCode = String.fromCharCode
+
+  var CURRY_SIDE_START = 'start'
+  var CURRY_SIDE_END = 'end'
 
   var base64DataURLPattern = /^data:(.*?)?;base64,(.+)$/
   var moduleName = 'PromisifyFile'
@@ -48,12 +53,29 @@
     'DataView'
   ]
 
+  var MIME_TYPES = {
+    xml: 'application/xml',
+    svg: 'image/svg+xml',
+    html: 'text/html'
+  }
+
+  var XHR_RESPONSE_TYPES = {
+    none: '',
+    text: 'text',
+    json: 'json',
+    document: 'document'
+  }
+
+  var DEFAULT_TEXT_ENCODING = 'UTF-8'
+  var FILEREADER_METHOD_PREFIX = 'readAs'
+
   var imageLoadError = new Error('GET image failed.')
   var xmlhttpLoadError = new Error('XMLHttpRequest load failed.')
   var xmlhttpTimeoutError = new Error('XMLHttpRequest timeout.')
 
-  var curryLeft = curry('left', curry)('left')
-  var curryRight = curryLeft(curry)('right')
+  var prepend = curry.bind(null, CURRY_SIDE_START)
+  // var prepend = curry(CURRY_SIDE_START, curry, CURRY_SIDE_START)
+  var append = prepend(curry, CURRY_SIDE_END)
 
   var supports = {
     // ie don't support DataView As Blob parts
@@ -150,11 +172,7 @@
       var context = this
 
       return new Promise(function(resolve, reject) {
-        var result = apply(
-          curryLeft(func, context)(resolve, reject),
-          context,
-          args
-        )
+        var result = apply(prepend(func, resolve, reject), context, args)
 
         if (typeof result !== 'undefined') {
           resolve(result)
@@ -215,26 +233,22 @@
    * internal use only
    * returns a function accept argumentst
    *
-   * @param  {String} side (left | right)
+   * @param  {String} side (start | end)
    * @param  {Function} func
-   * @param  {any} context
    * @returns  {Function}
    */
-  function curry(side, func, context) {
-    var rest
+  function curry(side, func) {
+    var rest = slice.call(arguments, 2)
 
     function curried() {
       var args =
-        side === 'left' ? concat(rest, arguments) : concat(arguments, rest)
-      return apply(func, context || this, args)
+        side === CURRY_SIDE_END
+          ? concat(arguments, rest)
+          : concat(rest, arguments)
+      return apply(func, this, args)
     }
 
-    function setRest() {
-      rest = arguments
-      return curried
-    }
-
-    return setRest
+    return curried
   }
 
   /**
@@ -421,8 +435,8 @@
   }
 
   var getFileReader = memoize(function getFileReader(dataType) {
-    var method = FileReader.prototype['readAs' + dataType]
-    return curryLeft(readFile)(method)
+    var method = FileReader.prototype[FILEREADER_METHOD_PREFIX + dataType]
+    return prepend(readFile, method)
   })
 
   function getFileReaderResult(fileReader, dataType, encoding) {
@@ -431,7 +445,7 @@
 
     if (dataType === 'Text') {
       encoding = encoding || this.$options.encoding
-      storeKey += '.' + String(encoding || 'UTF-8').toUpperCase()
+      storeKey += '.' + String(encoding || DEFAULT_TEXT_ENCODING).toUpperCase()
     }
 
     if (!store[storeKey]) {
@@ -448,7 +462,8 @@
 
   fileReaderSupportedDataTypes.forEach(function(dataType) {
     var fileReader = getFileReader(dataType)
-    proto[camelcase(dataType)] = curryLeft(getFileReaderResult)(
+    proto[camelcase(dataType)] = prepend(
+      getFileReaderResult,
       fileReader,
       dataType
     )
@@ -460,18 +475,18 @@
 
   var getArrayBufferParser = memoize(function getDOMParser(viewType) {
     var TypedArray = root[viewType]
-    return curryLeft(arrayBufferToView)(TypedArray)
+    return prepend(arrayBufferToView, TypedArray)
   })
 
   function toArrayBufferView(parser, byteOffset, length) {
-    parser = curryRight(parser)(byteOffset, length)
+    parser = append(parser, byteOffset, length)
     return this.arrayBuffer().then(parser)
   }
 
   // get getArrayBufferView
   arrayBufferViews.forEach(function(viewType) {
     var parser = getArrayBufferParser(viewType)
-    proto[camelcase(viewType)] = curryLeft(toArrayBufferView)(parser)
+    proto[camelcase(viewType)] = prepend(toArrayBufferView, parser)
   })
 
   // get `Blob`
@@ -491,7 +506,7 @@
   }
 
   proto.json = function(encoding, reviver) {
-    var parser = curryRight(JSON.parse, JSON)(reviver)
+    var parser = append(parseJSON, reviver)
     return this.text(encoding || this.$options.encoding).then(parser)
   }
 
@@ -556,7 +571,7 @@
   }
 
   proto.imageData = function(sx, sy, sw, sh) {
-    var parser = curryRight(getImageData)(sx, sy, sw, sh)
+    var parser = append(getImageData, sx, sy, sw, sh)
     return this.image().then(parser)
   }
 
@@ -579,7 +594,7 @@
   }
 
   var getDOMParser = memoize(function getDOMParser(mimeType) {
-    return curryRight(textToDocument)(mimeType)
+    return append(textToDocument, mimeType)
   })
 
   function toDocument(encoding, mimeType) {
@@ -590,18 +605,18 @@
   }
 
   proto.document = toDocument
-  proto.xml = curryRight(toDocument)('application/xml')
-  proto.svg = curryRight(toDocument)('image/svg+xml')
-  proto.html = curryRight(toDocument)('text/html')
+  proto.xml = append(toDocument, MIME_TYPES.xml)
+  proto.svg = append(toDocument, MIME_TYPES.svg)
+  proto.html = append(toDocument, MIME_TYPES.html)
 
   function parseXHRData(xhr) {
     switch (xhr.responseType) {
-      case '':
-      case 'text':
+      case XHR_RESPONSE_TYPES.none:
+      case XHR_RESPONSE_TYPES.text:
         return xhr.responseText
-      case 'json':
+      case XHR_RESPONSE_TYPES.json:
         return JSON.stringify(xhr.response)
-      case 'document':
+      case XHR_RESPONSE_TYPES.document:
         return xhr.responseXML
       default:
         return xhr.response
@@ -633,7 +648,7 @@
   })
 
   function parseFromData(data, options) {
-    var parser = curryRight(parseFromData)(options)
+    var parser = append(parseFromData, options)
 
     // Promise
     if (isThenAble(data)) {
@@ -727,8 +742,9 @@
     options = options || {}
     var blob = parseFromData(data, options)
     var promise = isThenAble(blob) ? blob : Promise.resolve(blob)
+    var toInstance = append(getInstance, options)
 
-    return promise.then(curryRight(getInstance)(options))
+    return promise.then(toInstance)
   }
 
   return umdExport(PromisifyFile)

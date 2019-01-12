@@ -18,7 +18,7 @@
     "update-dependencies": "yarn upgrade-interactive --latest",
     "build": "rm -rf lib && mkdir lib && uglifyjs --compress --mangle --output lib/index.js -- src/index.js",
     "test": "echo no-test",
-    "release": "np --no-yarn --no-cleanup"
+    "release": "yarn build && np --no-yarn --no-cleanup"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -26,23 +26,24 @@
   "license": "MIT",
   "repository": "fisker/promise-file",
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/preset-env": "^7.1.0",
-    "@xwtec/eslint-config": "^1.0.1",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "@xwtec/eslint-config": "^1.0.14",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^23.6.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-minify": "^0.5.0",
-    "core-js": "^2.6.1",
-    "eslint": "^5.10.0",
+    "core-js": "^2.6.2",
+    "eslint": "^5.12.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-import": "^2.14.0",
     "jest": "^23.6.0",
+    "np": "^3.1.0",
     "parcel-bundler": "^1.11.0",
     "puppeteer": "^1.11.0",
-    "regenerator-runtime": "^0.12.1",
+    "regenerator-runtime": "^0.13.1",
     "uglify-js": "^3.4.9",
     "whatwg-fetch": "^3.0.0"
   },
