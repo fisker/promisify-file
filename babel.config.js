@@ -1,15 +1,14 @@
 module.exports = {
-  plugins: [
-  ],
+  plugins: [],
   presets: [
     [
       '@babel/preset-env',
       {
         targets: {
-          ie: '6'
-        }
-      }
-    ]
+          ie: '6',
+        },
+      },
+    ],
   ],
-  moduleId: 'PromisifyFile'
+  moduleId: 'PromisifyFile',
 }

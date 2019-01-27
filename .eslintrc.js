@@ -1,5 +1,3 @@
 module.exports = {
-  extends: [
-    '@xwtec/eslint-config/legacy'
-  ]
+  extends: ['@xwtec/eslint-config/legacy'],
 }
