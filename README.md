@@ -1,5 +1,7 @@
 # Promisify File
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/fisker/promisify-file.svg)](https://greenkeeper.io/)
+
 ## Usage
 
 ### Basic syntax
