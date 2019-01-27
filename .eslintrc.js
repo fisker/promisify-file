@@ -1,5 +1,5 @@
 module.exports = {
   extends: [
-    '@xwtec/eslint-config/legacy/no-semi'
+    '@xwtec/eslint-config/legacy'
   ]
 }
