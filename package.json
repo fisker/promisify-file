@@ -27,8 +27,8 @@
   "repository": "fisker/promise-file",
   "devDependencies": {
     "@babel/cli": "7.2.3",
-    "@babel/core": "7.3.3",
-    "@babel/preset-env": "7.3.1",
+    "@babel/core": "7.3.4",
+    "@babel/preset-env": "7.3.4",
     "@xwtec/eslint-config": "3.5.8",
     "babel-eslint": "10.0.1",
     "babel-jest": "24.1.0",
