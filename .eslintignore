@@ -1,0 +1,18 @@
+# eslint ignore
+
+# also lint . files
+# disable es6 code check for now
+# !.*
+.*
+*
+
+# build file
+lib/**
+dist/**
+**/*.min.*
+
+# node_modules
+node_modules/**
+
+# fixtures
+**/fixtures/**
