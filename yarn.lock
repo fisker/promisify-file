@@ -803,10 +803,10 @@
   resolved "http://registry.npm.taobao.org/@types/semver/download/@types/semver-5.5.0.tgz#146c2a29ee7d3bae4bf2fcb274636e264c813c45"
   integrity sha1-FGwqKe59O65L8vyydGNuJkyBPEU=
 
-"@xwtec/eslint-config@3.5.8":
-  version "3.5.8"
-  resolved "https://registry.yarnpkg.com/@xwtec/eslint-config/-/eslint-config-3.5.8.tgz#4f0b6a16d06271e8d947b493e0e06f99234f3586"
-  integrity sha512-4n5IRNkGMd9QwkPBrLD25yqrCipHEdtBV5eQlcoI0RWhVaWF1zzNksxJmaU4FIdwc0cyaOn9T24UDWvhuOFklg==
+"@xwtec/eslint-config@3.5.9":
+  version "3.5.9"
+  resolved "https://registry.yarnpkg.com/@xwtec/eslint-config/-/eslint-config-3.5.9.tgz#a9f7bf71e95edb0aaa41792ec86479d3cf53d092"
+  integrity sha512-/z+FMuE0m/4P3tPjTQ+I8DzXbNcwTcwUGDxfbFpx8RbEJP+x55GYH4z6Jxvdy+DOUImD/LD6qqCK7cKJjwoMVw==
   dependencies:
     eslint-config-airbnb-base "^13.1.0"
     eslint-config-prettier "^4.0.0"
