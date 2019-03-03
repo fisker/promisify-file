@@ -30,7 +30,7 @@
     "@babel/preset-env": "7.3.4",
     "@commitlint/cli": "^7.5.2",
     "@commitlint/config-conventional": "^7.5.0",
-    "@xwtec/eslint-config": "3.5.10",
+    "@xwtec/eslint-config": "3.5.11",
     "babel-eslint": "10.0.1",
     "babel-jest": "24.1.0",
     "babel-polyfill": "6.26.0",
