@@ -46,7 +46,7 @@
     "parcel-bundler": "1.12.2",
     "prettier": "1.16.4",
     "puppeteer": "1.13.0",
-    "regenerator-runtime": "0.13.1",
+    "regenerator-runtime": "0.13.2",
     "uglify-js": "3.5.0",
     "whatwg-fetch": "3.0.0"
   },
