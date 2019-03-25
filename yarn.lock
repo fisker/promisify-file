@@ -1212,10 +1212,10 @@
   resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-12.0.10.tgz#17a8ec65cd8e88f51b418ceb271af18d3137df67"
   integrity sha512-WsVzTPshvCSbHThUduGGxbmnwcpkgSctHGHTqzWyFg4lYAuV5qXlyFPOsP3OWqCINfmg/8VXP+zJaa4OxEsBQQ==
 
-"@xwtec/eslint-config@3.9.2":
-  version "3.9.2"
-  resolved "https://registry.yarnpkg.com/@xwtec/eslint-config/-/eslint-config-3.9.2.tgz#b0dbc8c3b90129e2ba1fdb6d4d6bbdffb668bcd5"
-  integrity sha512-rEndYqEJ/PnCcp2Se+533OFyjMKMf2mSOCniUfliOw4Jh716W8l/HltnYjZCzO24bGWnp9s8dapaboU4hmFtoQ==
+"@xwtec/eslint-config@3.9.4":
+  version "3.9.4"
+  resolved "https://registry.yarnpkg.com/@xwtec/eslint-config/-/eslint-config-3.9.4.tgz#b86a2dc9ef19dca2a9746312f828d88056445539"
+  integrity sha512-jpM8MpBzupJfCSBupb4+jidgxKx79FKRzVGde+D4Ad4Stx7CUjim/qWjZo0uZwMMC+sria5nvOQ6c3MvJcjpBQ==
   dependencies:
     eslint-config-airbnb-base "^13.1.0"
     eslint-config-prettier "^4.1.0"
