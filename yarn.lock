@@ -1212,10 +1212,10 @@
   resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-12.0.10.tgz#17a8ec65cd8e88f51b418ceb271af18d3137df67"
   integrity sha512-WsVzTPshvCSbHThUduGGxbmnwcpkgSctHGHTqzWyFg4lYAuV5qXlyFPOsP3OWqCINfmg/8VXP+zJaa4OxEsBQQ==
 
-"@xwtec/eslint-config@4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@xwtec/eslint-config/-/eslint-config-4.1.0.tgz#f9f5d164814c85836320ad71ed85fe166114e8ed"
-  integrity sha512-PdeEicPN6yDcHsnolV4+QavL2On/wNZPbabSuofDDKgRhjQl+k8z7SxyCRKab2Bz74I/we0V39WeGGvKmTwl5g==
+"@xwtec/eslint-config@4.1.1":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@xwtec/eslint-config/-/eslint-config-4.1.1.tgz#9cde09798a40e045219be8f747fca1f9fb700d49"
+  integrity sha512-s92Qr8ptPGmo5Xo6gIUVKteUjk6TcgGHvmqiyUItiOuFQTcD2UmAKwyxzJf3iLU6T0fre4bT9UgveDfkKspiGA==
   dependencies:
     eslint-plugin-prettier "^3.0.1"
     eslint-plugin-vue "^5.2.2"
