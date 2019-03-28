@@ -1,3 +1,9 @@
+# config file for `dependabot`
+#
+# update: wget -O config.yml https://git.io/fjJKB
+# document: https://dependabot.com/docs/config-file/
+#
+
 version: 1
 update_configs:
   # Keep package.json (& lockfiles) up to date as soon as
@@ -15,3 +21,6 @@ update_configs:
       - match:
           dependency_type: "production"
           update_type: "security:patch"
+
+    # auto update package.json
+    version_requirement_updates: "increase_versions"

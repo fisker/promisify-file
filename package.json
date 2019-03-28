@@ -7,11 +7,10 @@
   "author": {
     "name": "fisker Cheung",
     "email": "lionkay@gmail.com",
-    "url": "https://github.com/fisker"
+    "url": "https://www.fiskercheung.com/"
   },
   "scripts": {
     "start": "rm -rf dist && mkdir dist && cp -r ./fixture ./dist/fixture && parcel ./src/index.html --open",
-    "update-dependencies": "yarn upgrade-interactive --latest",
     "build": "rm -rf lib && mkdir lib && uglifyjs --compress --mangle --output lib/index.js -- src/index.js",
     "test": "echo no-test",
     "release": "yarn build && np --no-yarn --no-cleanup"
@@ -30,7 +29,6 @@
     "@babel/preset-env": "7.4.2",
     "@commitlint/cli": "^7.5.2",
     "@commitlint/config-conventional": "^7.5.0",
-    "@xwtec/eslint-config": "5.0.3",
     "babel-eslint": "10.0.1",
     "babel-jest": "24.5.0",
     "babel-polyfill": "6.26.0",
@@ -38,6 +36,7 @@
     "core-js": "3.0.0",
     "cz-conventional-changelog-emoji": "^0.1.0",
     "eslint": "5.15.3",
+    "eslint-config-fisker": "^4.1.0",
     "husky": "^1.3.1",
     "jest": "24.5.0",
     "lint-staged": "^8.1.4",
@@ -50,15 +49,17 @@
     "uglify-js": "3.5.2",
     "whatwg-fetch": "3.0.0"
   },
-  "files": ["LICENSE", "README.md", "lib/index.js", "package.json"],
+  "files": ["lib/index.js"],
   "bugs": {
     "url": "https://github.com/fisker/promise-file/issues"
   },
-  "readme": "ERROR: No README data found!",
   "homepage": "https://github.com/fisker/promise-file#readme",
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog-emoji"
     }
+  },
+  "dependencies": {
+    "promisify-file-reader": "^3.0.0"
   }
 }
