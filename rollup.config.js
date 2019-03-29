@@ -1,6 +1,6 @@
 import babel from 'rollup-plugin-babel'
 import nodeResolve from 'rollup-plugin-node-resolve'
-import rollupPrettier  from 'rollup-plugin-prettier'
+import rollupPrettier from 'rollup-plugin-prettier'
 import {terser} from 'rollup-plugin-terser'
 import filesize from 'rollup-plugin-filesize'
 import prettier from 'prettier'
@@ -9,11 +9,12 @@ const libraryName = 'PromisifyFile'
 const prettierConfig = prettier.resolveConfig.sync(`src/index.js`)
 
 const plugins = [
-nodeResolve(), babel(), rollupPrettier(prettierConfig),filesize()
+  nodeResolve(),
+  babel(),
+  rollupPrettier(prettierConfig),
+  filesize(),
 ]
-const minify = [
-nodeResolve(), babel(), terser(),filesize()
-]
+const minify = [nodeResolve(), babel(), terser(), filesize()]
 
 const builds = {
   input: 'src/index.js',

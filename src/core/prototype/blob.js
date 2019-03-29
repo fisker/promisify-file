@@ -14,7 +14,4 @@ function blobSync(options = {}) {
 
 const blob = toPromise(blobSync)
 
-export {
-  blob,
-  blobSync,
-}
+export {blob, blobSync}

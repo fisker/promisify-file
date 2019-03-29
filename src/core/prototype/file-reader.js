@@ -1,9 +1,12 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import {
   readAsArrayBuffer,
   readAsText,
   readAsDataURL,
   readAsBinaryString,
 } from 'promisify-file-reader'
+
+import cacheResult from '../helper/cache-result'
 
 import {DEFAULT_TEXT_ENCODING} from '../../constants'
 
@@ -17,21 +20,23 @@ const methods = {
 function readAs(dataType) {
   const method = methods[dataType]
 
-  return function readAs(encoding) {
+  function cacheKey(encoding) {
+    if (dataType !== 'text') {
+      return dataType
+    }
+
     encoding = String(
       encoding || this.$options.encoding || DEFAULT_TEXT_ENCODING
     ).toUpperCase()
 
-    const storeKey = dataType === 'text' ? dataType : `${dataType}.${encoding}`
-
-    const {$store: store} = this
-
-    if (!store[storeKey]) {
-      store[storeKey] = method(store.blob, encoding)
-    }
-
-    return store[storeKey]
+    return `${dataType}[${encoding}]`
   }
+
+  function readAs(...arguments_) {
+    return method(this.$store.blob, ...arguments_)
+  }
+
+  return cacheResult(cacheKey, readAs)
 }
 
 const arrayBuffer = readAs('arrayBuffer')

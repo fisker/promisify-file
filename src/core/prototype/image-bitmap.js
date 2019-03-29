@@ -1,8 +1,11 @@
 import {createImageBitmap} from '../../utils/global-this'
+import cacheResult from '../helper/cache-result'
 
 // get `ImageBitmap`
-function imageBitmap(...arguments_) {
+const imageBitmap = cacheResult('imageBitmap', function imageBitmap(
+  ...arguments_
+) {
   return createImageBitmap(this.$store.blob, ...arguments_)
-}
+})
 
 export {imageBitmap}

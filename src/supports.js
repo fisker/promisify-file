@@ -4,6 +4,7 @@ import {
   ArrayBuffer,
   DataView,
   Blob,
+  URL,
 } from './utils/global-this'
 import isObject from './utils/is-object'
 import isFunction from './utils/is-function'
@@ -30,3 +31,6 @@ export const SUPPORTS_BLOB_CONSTRUCTOR_WITH_DATA_VIEW = (function() {
     return false
   }
 })()
+
+export const SUPPORTS_URL_CREATE_OBJECT_URL =
+  isObject(URL) && isFunction(URL.createObjectURL)

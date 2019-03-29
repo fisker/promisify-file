@@ -3,13 +3,7 @@
  */
 
 import PromisifyFile from '../src'
-import typedArrays from '../src/core/prototype/typed-array'
-import {
-  textFile,
-  htmlFile,
-  pngFile,
-  svgFile,
-} from './shared/fixures'
+import {textFile, htmlFile, pngFile, svgFile} from './shared/fixures'
 
 const testTextFile = new PromisifyFile(textFile.file)
 const testHTMLFile = new PromisifyFile(htmlFile.file)
@@ -30,9 +24,18 @@ describe('prototype', () => {
   })
 
   test('text with encoding', async () => {
-    const text = await testTextFile.text('ascii')
+    const text = await testTextFile.text('utf8')
 
     expect(text).toBe(textFile.content)
+  })
+
+  test('text should store in different location', async () => {
+    const text1 = testTextFile.text('utf8')
+    const text2 = testTextFile.text('ascii')
+
+    expect(text1).toBe(testTextFile.$store['text[UTF8]'])
+    expect(text2).toBe(testTextFile.$store['text[ASCII]'])
+    expect(await text1).not.toBe(await text2)
   })
 
   test('dataURL(text)', async () => {
@@ -45,7 +48,9 @@ describe('prototype', () => {
   test('dataURL(png)', async () => {
     const url = await testPNGFile.dataURL()
 
-    expect(url).toBe('data:image/png;base64,' + pngFile.content.toString('base64'))
+    expect(url).toBe(
+      `data:image/png;base64,${pngFile.content.toString('base64')}`
+    )
   })
 
   test('binaryString', async () => {
@@ -56,7 +61,7 @@ describe('prototype', () => {
 
   test('blob', async () => {
     const newBlob = await testTextFile.blob({
-      type: 'text/html'
+      type: 'text/html',
     })
 
     expect(newBlob).toBeInstanceOf(window.Blob)
@@ -66,7 +71,7 @@ describe('prototype', () => {
 
   test('blobSync', () => {
     const newBlob = testTextFile.blobSync({
-      type: 'text/html'
+      type: 'text/html',
     })
 
     expect(newBlob).toBeInstanceOf(window.Blob)
@@ -75,10 +80,10 @@ describe('prototype', () => {
   })
 
   test('file', async () => {
-    const filename = Math.random() + '.html'
+    const filename = `${Math.random()}.html`
     const type = 'text/html'
     const file = await testTextFile.file(filename, {
-      type
+      type,
     })
 
     expect(file).toBeInstanceOf(window.File)
@@ -87,10 +92,10 @@ describe('prototype', () => {
   })
 
   test('fileSync', () => {
-    const filename = Math.random() + '.html'
+    const filename = `${Math.random()}.html`
     const type = 'text/html'
     const file = testTextFile.fileSync(filename, {
-      type
+      type,
     })
 
     expect(file).toBeInstanceOf(window.File)
@@ -108,7 +113,9 @@ describe('prototype', () => {
     expect(htmlDocument).toBeInstanceOf(window.HTMLDocument)
     expect(htmlDocument.documentElement).toBeInstanceOf(window.HTMLHtmlElement)
     expect(htmlDocument.body).toBeInstanceOf(window.HTMLBodyElement)
-    expect(htmlDocument.getElementById('test')).toBeInstanceOf(window.HTMLInputElement)
+    expect(htmlDocument.getElementById('test')).toBeInstanceOf(
+      window.HTMLInputElement
+    )
   })
 
   // can't test with jsdom
@@ -121,11 +128,13 @@ describe('prototype', () => {
   test.skip('svg', async () => {
     const svgDocument = await testSVGFile.svg()
     expect(svgDocument).toBeInstanceOf(window.SVGDocument)
-    expect(svgDocument.getElementById('test')).toBeInstanceOf(window.SVGCircleElement)
+    expect(svgDocument.getElementById('test')).toBeInstanceOf(
+      window.SVGCircleElement
+    )
   })
 
   test('broken xml', () => {
-    expect(testHTMLFile.xml()).rejects.toThrow();
+    expect(testHTMLFile.xml()).rejects.toThrow()
   })
 
   test('image', async () => {
@@ -134,7 +143,8 @@ describe('prototype', () => {
     expect(image.naturalWidth).toBe(500)
   })
 
-  test('imageBitmap', async () => {
+  // jsdom don't support `createImageBitmap` yet
+  test.skip('imageBitmap', async () => {
     const imageBitmap = await testPNGFile.imageBitmap()
     expect(imageBitmap).toBeInstanceOf(window.ImageBitmap)
     expect(imageBitmap.width).toBe(500)
@@ -145,25 +155,40 @@ describe('prototype', () => {
     expect(json).toEqual(JSON.parse(textFile.content))
   })
 
-  const types = Object.keys(typedArrays)
+  const types = [
+    'dataView',
+    'float32Array',
+    'float64Array',
+    'int16Array',
+    'int32Array',
+    'int8Array',
+    'uint16Array',
+    'uint32Array',
+    'uint8Array',
+    'uint8ClampedArray',
+  ]
 
   for (const type of types) {
     test(type, async () => {
-      const view = await testTextFile[type]()
+      const string = String(Math.random() * Date.now())
+        .toString(36)
+        .repeat(64)
+      const pf = new PromisifyFile(new window.Blob([string]))
+      const view = await pf[type]()
       const TypedArray = window[type[0].toUpperCase() + type.slice(1)]
       expect(view).toBeInstanceOf(TypedArray)
     })
   }
 
   // jsdom use dataURL as url
-  test('url', async () => {
+  test.skip('url', async () => {
     const url = await testPNGFile.url()
     const dataURL = await testPNGFile.dataURL()
     expect(url).toBe(dataURL)
   })
 
   // jsdom use dataURL as url
-  test('urlSync', async () => {
+  test.skip('urlSync', async () => {
     const url = testPNGFile.urlSync()
     const dataURL = await testPNGFile.dataURL()
     expect(url).toBe(dataURL)

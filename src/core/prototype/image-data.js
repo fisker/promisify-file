@@ -1,9 +1,12 @@
-
 import getImageData from '../../utils/get-image-data'
+import cacheResult from '../helper/cache-result'
 
-async function imageData(sx, sy, sw, sh) {
+// get `ImageBitmap`
+const imageData = cacheResult('imageData', async function imageData(
+  ...arguments_
+) {
   const image = await this.image()
-  return getImageData(image, sx, sy, sw, sh)
-}
+  return getImageData(image, ...arguments_)
+})
 
 export {imageData}

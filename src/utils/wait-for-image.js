@@ -4,7 +4,8 @@ import {IMAGE_LOAD_ERROR} from '../constants'
 
 function waitForImage(resolve, reject, image) {
   if (image.naturalWidth) {
-    return resolve(image)
+    resolve(image)
+    return
   }
 
   on(image, 'load', function() {

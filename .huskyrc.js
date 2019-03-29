@@ -14,13 +14,13 @@ const CMD_COMMITLINT = 'commitlint -E HUSKY_GIT_PARAMS'
 const CMD_LINT_STAGED = 'lint-staged'
 
 const hooks = {
-  // [HOOK_COMMIT_MSG]: [CMD_COMMITLINT],
-  // [HOOK_PRE_COMMIT]: [CMD_LINT_STAGED],
+  [HOOK_COMMIT_MSG]: [CMD_COMMITLINT],
+  [HOOK_PRE_COMMIT]: [CMD_LINT_STAGED],
 }
 
 // export
 
-const tasks = arr => arr.join(' && ')
+const tasks = array => array.join(' && ')
 
 function parseHooks(hooks) {
   const keys = Object.keys(hooks)

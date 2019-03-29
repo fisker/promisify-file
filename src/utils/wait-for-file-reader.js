@@ -3,11 +3,13 @@ import on from './on'
 
 function waitForFileReader(resolve, reject, fileReader) {
   if (fileReader.result) {
-    return resolve(fileReader.result)
+    resolve(fileReader.result)
+    return
   }
 
   if (fileReader.error) {
-    return reject(fileReader.error)
+    reject(fileReader.error)
+    return
   }
 
   on(fileReader, 'load', function() {
