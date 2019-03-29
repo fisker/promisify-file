@@ -1,5 +1,5 @@
 import promisify from './promisify'
-import parseBase64DataURL from './dataurl-to-blob'
+import parseBase64DataURL from './data-url-to-blob'
 
 function canvasToBlob(resolve, reject, canvas, type, quality) {
   if (canvas.toBlob) {
@@ -7,7 +7,7 @@ function canvasToBlob(resolve, reject, canvas, type, quality) {
   }
 
   if (canvas.convertToBlob) {
-    return canvas.convertToBlob(type, quality).then(resolve)
+    return resolve(canvas.convertToBlob(type, quality))
   }
 
   const url = canvas.toDataURL(type, quality)

@@ -1,6 +1,4 @@
-import globalThis from './global-this'
-
-const {XMLSerializer} = globalThis
+import {XMLSerializer} from './global-this'
 
 function documentToText(document) {
   return (

@@ -5,6 +5,4 @@ function imageBitmap(...arguments_) {
   return createImageBitmap(this.$store.blob, ...arguments_)
 }
 
-export default {
-  imageBitmap,
-}
+export {imageBitmap}

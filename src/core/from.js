@@ -1,15 +1,28 @@
-import isThenAble from '../utils/it-then-able'
-import append from '../utils/append'
+import {Blob} from '../utils/global-this'
+import isThenAble from '../utils/is-then-able'
 import File from './file'
-import isThenAble from './../utils/is-then-able';
-import getType from './../utils/get-type';
+import getType from '../utils/get-type'
 import waitForXMLHttpRequest from '../utils/wait-for-xmlhttp-request'
+import waitForImage from '../utils/wait-for-image'
+import waitForFileReader from '../utils/wait-for-file-reader'
+import drawImage from '../utils/draw-image'
+import putImageData from '../utils/put-image-data'
+import isBody from '../utils/is-body'
+import isDocument from '../utils/is-document'
+import documentToText from '../utils/document-to-text'
+import canvasToBlob from '../utils/canvas-to-blob'
+import isRenderingContext from '../utils/is-rendering-context'
+import isDataURL from '../utils/is-data-url'
+import dataURLToBlob from '../utils/data-url-to-blob'
+import download from '../utils/download'
+import {SUPPORTS_BLOB_CONSTRUCTOR_WITH_DATA_VIEW} from '../supports'
+import isDataView from '../utils/is-data-view'
 
 function parseFromData(data, options) {
   const parser = () => parseFromData(options)
 
   // Promise
-  if (isThenbable(data)) {
+  if (isThenAble(data)) {
     return data.then(parser)
   }
 
@@ -64,9 +77,9 @@ function parseFromData(data, options) {
     return parser(data.canvas)
   }
 
-  if (base64DataURLPattern.test(data)) {
+  if (isDataURL(data)) {
     try {
-      const blob = parseBase64DataURL(data)
+      const blob = dataURLToBlob(data)
       if (blob) {
         return blob
       }
@@ -74,10 +87,10 @@ function parseFromData(data, options) {
   }
 
   if (/^(?:blob|data):/.test(data)) {
-    return fetch(data).then(parser)
+    return download(data).then(parser)
   }
 
-  if (!supports.blobConstructorWithDataView && isDataView(data)) {
+  if (!SUPPORTS_BLOB_CONSTRUCTOR_WITH_DATA_VIEW && isDataView(data)) {
     return parser(data.buffer)
   }
 

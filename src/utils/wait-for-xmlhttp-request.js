@@ -1,6 +1,7 @@
 import promisify from './promisify'
 import on from './on'
 import parseXHRData from './parse-xmlhttp-request-data'
+import {XMLHTTP_TIMEOUT_ERROR, XMLHTTP_LOAD_ERROR} from '../constants'
 
 function waitForXMLHttpRequest(resolve, reject, xhr) {
   if (xhr.readyState === 4) {
@@ -12,10 +13,10 @@ function waitForXMLHttpRequest(resolve, reject, xhr) {
     resolve(parseXHRData(xhr))
   })
   on(xhr, 'error', function() {
-    reject(new Error('XMLHttpRequest load failed.'))
+    reject(new Error(XMLHTTP_LOAD_ERROR))
   })
   on(xhr, 'timeout', function() {
-    reject(new Error('XMLHttpRequest timeout.'))
+    reject(new Error(XMLHTTP_TIMEOUT_ERROR))
   })
 }
 

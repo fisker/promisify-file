@@ -1,11 +1,11 @@
 import {URL} from '../../utils/global-this'
+import toPromise from '../../utils/async'
 
 // get `URL`
-function url() {
-  const url = URL.createObjectURL(this.$store.blob)
-  return Promise.resolve(url)
+function urlSync() {
+  return URL.createObjectURL(this.$store.blob)
 }
 
-export default {
-  url,
-}
+const url = toPromise(urlSync)
+
+export {url, urlSync}

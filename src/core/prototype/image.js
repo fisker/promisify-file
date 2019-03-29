@@ -1,9 +1,9 @@
 import loadImage from '../../utils/load-image'
 
-function image() {
-  return this.dataURL().then(loadImage)
+async function image() {
+  const url = await this.url()
+
+  return loadImage(url)
 }
 
-export default {
-  image,
-}
+export {image}

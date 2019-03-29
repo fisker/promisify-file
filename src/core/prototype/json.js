@@ -1,10 +1,6 @@
-import append from '../../utils/append-arguments'
-
-function json(encoding, reviver) {
-  const parser = append(JSON.parse, reviver)
-  return this.text(encoding || this.$options.encoding).then(parser)
+async function json(encoding, reviver) {
+  const text = await this.text(encoding || this.$options.encoding)
+  return JSON.parse(text, reviver)
 }
 
-export default {
-  json,
-}
+export {json}

@@ -2,33 +2,16 @@ import {Blob} from '../utils/global-this'
 import defineValues from '../utils/define-values'
 
 import constructFile from '../utils/construct-file'
-
-import blob from './prototype/blob'
-import domParser from './prototype/dom-parser'
-import file from './prototype/file'
-import fileReader from './prototype/file-reader'
-import image from './prototype/image'
-import imageBitmap from './prototype/image-bitmap'
-import imageData from './prototype/image-data'
-import json from './prototype/json'
-import typedArray from './prototype/typed-array'
-import url from './prototype/url'
-
-const prototype = {
-  ...blob,
-  ...domParser,
-  ...file,
-  ...fileReader,
-  ...image,
-  ...imageBitmap,
-  ...imageData,
-  ...json,
-  ...typedArray,
-  ...url,
-}
+import isBlob from '../utils/is-blob'
+import {CONSTRUCTOR_DATA_TYPE_ERROR} from '../constants'
+import * as prototype from './prototype'
 
 class File {
   constructor(data, options = {}) {
+    if (!isBlob(data)) {
+      throw new TypeError(`${CONSTRUCTOR_DATA_TYPE_ERROR}, got ${typeof data}`)
+    }
+
     let blob = data
     const type = options.type || data.type
     const name = options.name || data.name

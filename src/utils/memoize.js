@@ -1,4 +1,3 @@
-import apply from './apply'
 /**
  * Simple memoize
  * internal use only
@@ -10,14 +9,16 @@ import apply from './apply'
  */
 function memoize(func) {
   const cache = {}
+
   function memoized(...arguments_) {
     const [key] = arguments_
 
     if (!cache[key]) {
-      cache[key] = apply(func, this, arguments_)
+      cache[key] = func(...arguments_)
     }
     return cache[key]
   }
+
   return memoized
 }
 

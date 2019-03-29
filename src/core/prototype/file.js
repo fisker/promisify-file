@@ -1,15 +1,18 @@
 import constructFile from '../../utils/construct-file'
+import toPromise from '../../utils/async'
 
 // get `File`
-function file(name, options) {
-  const file = constructFile(
-    [this.$store.blob],
-    name || this.$store.blob.name,
-    options || this.$store.blob
-  )
-  return Promise.resolve(file)
+function fileSync(name, options = '') {
+  const {blob} = this.$store
+  name = name || blob.name
+  options = {
+    ...blob,
+    ...options,
+  }
+
+  return constructFile([blob], name, options)
 }
 
-export default {
-  file,
-}
+const file = toPromise(fileSync)
+
+export {fileSync, file}

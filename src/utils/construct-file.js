@@ -1,8 +1,6 @@
 import {SUPPORTS_FILE_CONSTRUCTOR} from '../supports'
 
-import globalThis from './global-this'
-
-const {File, Blob} = globalThis
+import {File, Blob} from './global-this'
 
 function toFile(parts, fileName, options) {
   return new File(parts, fileName, options)

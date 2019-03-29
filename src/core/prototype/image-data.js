@@ -1,11 +1,9 @@
-import append from '../../utils/append-arguments'
+
 import getImageData from '../../utils/get-image-data'
 
-function imageData(sx, sy, sw, sh) {
-  const parser = append(getImageData, sx, sy, sw, sh)
-  return this.image().then(parser)
+async function imageData(sx, sy, sw, sh) {
+  const image = await this.image()
+  return getImageData(image, sx, sy, sw, sh)
 }
 
-export default {
-  imageData,
-}
+export {imageData}

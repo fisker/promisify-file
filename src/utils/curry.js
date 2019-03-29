@@ -1,4 +1,3 @@
-import apply from './apply'
 import {CURRY_SIDE_END} from '../constants'
 /**
  * Simple curry
@@ -10,15 +9,13 @@ import {CURRY_SIDE_END} from '../constants'
  * @returns  {Function}
  */
 function curry(side, func, ...rest) {
-  function curried(...arguments_) {
-    const args =
+  return function curried(...arguments_) {
+    const arguments__ =
       side === CURRY_SIDE_END
         ? [...arguments_, ...rest]
         : [...rest, ...arguments_]
-    return apply(func, this, args)
+    return func.apply(this, arguments__)
   }
-
-  return curried
 }
 
 export default curry

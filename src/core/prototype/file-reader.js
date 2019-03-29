@@ -1,41 +1,42 @@
-import {arrayBuffer, text, dataURL, binaryString} from 'promify-file-reader'
+import {
+  readAsArrayBuffer,
+  readAsText,
+  readAsDataURL,
+  readAsBinaryString,
+} from 'promisify-file-reader'
 
 import {DEFAULT_TEXT_ENCODING} from '../../constants'
 
-function wrap(method, dataType) {
-  return function(...arguments_) {
-    let cacheKey = dataType
+const methods = {
+  arrayBuffer: readAsArrayBuffer,
+  text: readAsText,
+  dataURL: readAsDataURL,
+  binaryString: readAsBinaryString,
+}
 
-    if (cacheKey === 'text') {
-      const [
-        encoding = this.$options.encoding || DEFAULT_TEXT_ENCODING,
-      ] = arguments_
-      cacheKey += `.${String(encoding).toUpperCase()}`
-    }
+function readAs(dataType) {
+  const method = methods[dataType]
+
+  return function readAs(encoding) {
+    encoding = String(
+      encoding || this.$options.encoding || DEFAULT_TEXT_ENCODING
+    ).toUpperCase()
+
+    const storeKey = dataType === 'text' ? dataType : `${dataType}.${encoding}`
 
     const {$store: store} = this
 
-    if (!store[cacheKey]) {
-      const {blob} = store
-      store[cacheKey] = method(blob, ...arguments_)
+    if (!store[storeKey]) {
+      store[storeKey] = method(store.blob, encoding)
     }
 
-    return store[cacheKey]
+    return store[storeKey]
   }
 }
 
-const methods = {
-  arrayBuffer,
-  text,
-  dataURL,
-  binaryString,
-}
+const arrayBuffer = readAs('arrayBuffer')
+const text = readAs('text')
+const dataURL = readAs('dataURL')
+const binaryString = readAs('binaryString')
 
-const wrapped = {}
-const types = Object.keys(methods)
-
-for (const type of types) {
-  wrapped[type] = wrap(methods[type], type)
-}
-
-export default wrapped
+export {arrayBuffer, text, dataURL, binaryString}

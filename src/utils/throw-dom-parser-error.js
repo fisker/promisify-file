@@ -3,7 +3,8 @@ function throwParserError(document) {
   const parserError = document.getElementsByTagName('parsererror')[0]
 
   if (parserError) {
-    throw new Error(parserError.textContent || parserError.textContent)
+    // eslint-disable-next-line unicorn/prefer-text-content
+    throw new Error(parserError.innerText || parserError.textContent)
   }
 
   return document

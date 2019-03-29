@@ -1,12 +1,10 @@
-import globalThis from './global-this'
+import {Image} from './global-this'
 import waitForImage from './wait-for-image'
 
-const {Image} = globalThis
-
 // load as a `HTMLImageElement`
-function loadImage(src) {
+function loadImage(url) {
   const image = new Image()
-  image.src = src
+  image.src = url
   return waitForImage(image)
 }
 

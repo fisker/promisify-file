@@ -9,17 +9,17 @@ function defineValues(
     enumerable: true,
   }
 ) {
-  const props = {}
+  const properties = {}
   const keys = Object.keys(values)
 
   for (const key of keys) {
-    props[key] = {
+    properties[key] = {
       value: values[key],
       ...options,
     }
   }
 
-  return defineProperties(object, props)
+  return defineProperties(object, properties)
 }
 
 export default defineValues

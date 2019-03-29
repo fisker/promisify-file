@@ -1,18 +1,17 @@
-import getDOMParser from '../../utils/get-dom-parser'
 import append from '../../utils/append-arguments'
+import textToDocument from '../../utils/text-to-document'
 
-import {MIME_TYPES} from '../../constants'
+import {DOMPARSER_TYPES} from '../../constants'
 
-function toDocument(encoding, mimeType) {
-  encoding = encoding || this.$options.encoding
-  mimeType = mimeType || this.$store.blob.type
-  const parser = getDOMParser(mimeType)
-  return this.text(encoding).then(parser)
+async function document(type) {
+  type = type || this.$store.blob.type
+  const text = await this.text()
+
+  return textToDocument(text, type)
 }
 
-export default {
-  document: toDocument,
-  xml: append(toDocument, MIME_TYPES.xml),
-  svg: append(toDocument, MIME_TYPES.svg),
-  html: append(toDocument, MIME_TYPES.html),
-}
+const xml = append(document, DOMPARSER_TYPES.xml)
+const svg = append(document, DOMPARSER_TYPES.svg)
+const html = append(document, DOMPARSER_TYPES.html)
+
+export {document, xml, svg, html}
