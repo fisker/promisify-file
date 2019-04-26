@@ -45,7 +45,7 @@
     "np": "5.0.0",
     "parcel-bundler": "1.12.3",
     "prettier": "1.17.0",
-    "puppeteer": "1.14.0",
+    "puppeteer": "1.15.0",
     "regenerator-runtime": "0.13.2",
     "uglify-js": "3.5.8",
     "whatwg-fetch": "3.0.0"
