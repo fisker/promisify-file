@@ -47,7 +47,7 @@
     "prettier": "1.17.0",
     "puppeteer": "1.15.0",
     "regenerator-runtime": "0.13.2",
-    "uglify-js": "3.5.11",
+    "uglify-js": "3.5.12",
     "whatwg-fetch": "3.0.0"
   },
   "files": ["LICENSE", "README.md", "lib/index.js", "package.json"],
