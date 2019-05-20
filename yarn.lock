@@ -1284,12 +1284,12 @@
   resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-12.0.12.tgz#45dd1d0638e8c8f153e87d296907659296873916"
   integrity sha512-SOhuU4wNBxhhTHxYaiG5NY4HBhDIDnJF60GU+2LqHAdKKer86//e4yg69aENCtQ04n0ovz+tq2YPME5t5yp4pw==
 
-"@xwtec/eslint-config@5.0.4":
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/@xwtec/eslint-config/-/eslint-config-5.0.4.tgz#59edca51e600dae7fd099f46bb5e658c65ae047b"
-  integrity sha512-BKChGJmi1R5Z3ZeoayqyHoUTygL4HxynHa3tOZL6e345MNZMaDQ5Jj+RrncLWImZqZGzslnGmrcT1+kASDG5dg==
+"@xwtec/eslint-config@5.0.5":
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/@xwtec/eslint-config/-/eslint-config-5.0.5.tgz#5edfec90641b3985e93d3c43967024f7b6344c60"
+  integrity sha512-h0L3LQQp9DwJ6jfTFTnaPnx8HoAz4joEdt3GpQ2mqoATIMjcMwW3XjYQoqaRKcQY6Aw5NvB/NmBeTcXpWwpNfQ==
   dependencies:
-    eslint-plugin-prettier "^3.0.1"
+    eslint-plugin-prettier "^3.1.0"
 
 JSONStream@^1.0.4:
   version "1.3.5"
@@ -3292,7 +3292,7 @@ escodegen@~1.9.0:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-plugin-prettier@^3.0.1:
+eslint-plugin-prettier@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-prettier/-/eslint-plugin-prettier-3.1.0.tgz#8695188f95daa93b0dc54b249347ca3b79c4686d"
   integrity sha512-XWX2yVuwVNLOUhQijAkXz+rMPPoCr7WFiAl8ig6I7Xn+pPVhDhzg4DxHpmbeb0iqjO9UronEA3Tb09ChnFVHHA==
