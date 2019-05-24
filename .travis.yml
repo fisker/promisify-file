@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+  - '8'
+  - '10'
+  - '11'
+sudo: false
+cache: yarn
+script:
+  - yarn lint
+  - yarn test-coverage
+after_script:
+  - npm install --global codecov coveralls codacy-coverage
+  - cat ./coverage/lcov.info | coveralls
+  - cat ./coverage/lcov.info | codecov
+  - cat ./coverage/lcov.info | codacy-coverage

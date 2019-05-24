@@ -1,8 +1,8 @@
-# EditorConfig is awesome: https://EditorConfig.org
-
-# config file for EditorConfig
-# project https://github.com/xwtec/dotfiles
-# primary link https://raw.githubusercontent.com/xwtec/dotfiles/master/editorconfig/.editorconfig
+# config file for `editorconfig`
+#
+# update: wget -O .editorconfig https://git.io/fhAJu
+# document: https://editorconfig.org
+#
 
 # top-most EditorConfig file
 root = true
@@ -36,3 +36,7 @@ indent_size = 4
 [*.{bat,cmd}]
 charset = ansi
 end_of_line = crlf
+
+# markdown
+[*.{md,markdown}]
+insert_final_newline = false

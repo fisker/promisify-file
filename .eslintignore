@@ -1,18 +1,24 @@
-# eslint ignore
 
-# also lint . files
-# disable es6 code check for now
-# !.*
-.*
-*
+# ignore file for `eslint`
+#
+# update: wget -O .eslintignore https://git.io/fhNp3
+# document: https://eslint.org/docs/user-guide/configuring#eslintignore
+
+# also lint dot files
+!.*
+
+# vendors
+node_modules/**
+**/vendors/**
+**/vendor/**
+**/third-party/**
 
 # build file
 lib/**
 dist/**
 **/*.min.*
 
-# node_modules
-node_modules/**
-
 # fixtures
 **/fixtures/**
+
+# project glob

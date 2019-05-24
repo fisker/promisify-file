@@ -1,5 +1,4 @@
 module.exports = {
-  plugins: [],
   presets: [
     [
       '@babel/preset-env',
@@ -7,8 +6,28 @@ module.exports = {
         targets: {
           ie: '6',
         },
+        // debug: true,
+        exclude: ['transform-typeof-symbol', 'transform-async-to-generator'],
+        // useBuiltIns: 'usage',
+        modules: false,
       },
     ],
   ],
-  moduleId: 'PromisifyFile',
+  plugins: ['babel-plugin-transform-async-to-promises'],
+  env: {
+    test: {
+      presets: [
+        [
+          '@babel/env',
+          {
+            // debug: true,
+            exclude: [
+              'transform-typeof-symbol',
+              'transform-async-to-generator',
+            ],
+          },
+        ],
+      ],
+    },
+  },
 }

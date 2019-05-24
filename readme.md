@@ -7,15 +7,14 @@
 ### Basic syntax
 
 ```js
-import PromisifyFile from 'promisify-file'
-
+import PromisifyFile from "promisify-file"
 ;(async () => {
   const testFile = new File(
-    ['hello from promisify-file.txt'],
-    'promisify-file.txt',
+    ["hello from promisify-file.txt"],
+    "promisify-file.txt",
     {
-      type: 'text/plain',
-      lastModified: Date.now()
+      type: "text/plain",
+      lastModified: Date.now(),
     }
   )
 
@@ -276,7 +275,7 @@ promisifyFile.html([encoding]) // shortcut for promisifyFile.document(encoding, 
 ```
 
 Notice:
-  **Note that if the parsing process fails, the `DOMParser` does not throw an exception, but `PromisifyFile.document` throws an `Error`**
+**Note that if the parsing process fails, the `DOMParser` does not throw an exception, but `PromisifyFile.document` throws an `Error`**
 
 links:
 
