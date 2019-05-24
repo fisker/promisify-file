@@ -13,14 +13,16 @@ class File {
     }
 
     let blob = data
-    const type = options.type || data.type
-    const name = options.name || data.name
-    const lastModified = options.lastModified || data.lastModified
+    const {
+      type = blob.type,
+      name = blob.name,
+      lastModified = blob.lastModified,
+    } = options
 
     if (
-      type !== data.type ||
-      name !== data.name ||
-      lastModified !== data.lastModified
+      type !== blob.type ||
+      name !== blob.name ||
+      lastModified !== blob.lastModified
     ) {
       if (name) {
         blob = constructFile([data], name, {
