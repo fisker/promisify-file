@@ -61,7 +61,7 @@
     "jest": "24.8.0",
     "jest-environment-jsdom-thirteen": "^1.0.1",
     "lint-staged": "^8.1.4",
-    "markdownlint-cli": "^0.16.0",
+    "markdownlint-cli": "^0.17.0",
     "parcel-bundler": "1.12.3",
     "prettier": "1.17.1",
     "promisify-file-reader": "^3.0.4",
