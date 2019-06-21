@@ -13,6 +13,6 @@ function getCanvasRenderingContext2D(width, height) {
   return canvas.getContext('2d')
 }
 
-export default (SUPPORTS_OFFSCREEN_CANVAS
+export default SUPPORTS_OFFSCREEN_CANVAS
   ? getOffscreenCanvasRenderingContext2D
-  : getCanvasRenderingContext2D)
+  : getCanvasRenderingContext2D
