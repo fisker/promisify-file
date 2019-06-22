@@ -73,7 +73,7 @@
     "promisify-file-reader": "^3.0.4",
     "regenerator-runtime": "0.13.2",
     "rollup": "^1.16.2",
-    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-filesize": "^6.1.1",
     "rollup-plugin-node-resolve": "^5.0.4",
     "rollup-plugin-prettier": "^0.6.0",
