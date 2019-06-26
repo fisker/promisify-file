@@ -62,7 +62,7 @@
     "cz-conventional-changelog-emoji": "^0.1.0",
     "eslint": "5.16.0",
     "eslint-formatter-friendly": "^6.0.0",
-    "husky": "^2.4.1",
+    "husky": "^2.6.0",
     "jest": "24.8.0",
     "jest-environment-jsdom-thirteen": "^1.0.1",
     "lint-staged": "^8.2.1",
