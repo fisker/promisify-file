@@ -14,4 +14,4 @@ function toBlob(parts, fileName, options) {
   return blob
 }
 
-export default (SUPPORTS_FILE_CONSTRUCTOR ? toFile : toBlob)
+export default SUPPORTS_FILE_CONSTRUCTOR ? toFile : toBlob
