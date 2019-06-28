@@ -7,13 +7,13 @@
 ### Basic syntax
 
 ```js
-import PromisifyFile from "promisify-file"
+import PromisifyFile from 'promisify-file'
 ;(async () => {
   const testFile = new File(
-    ["hello from promisify-file.txt"],
-    "promisify-file.txt",
+    ['hello from promisify-file.txt'],
+    'promisify-file.txt',
     {
-      type: "text/plain",
+      type: 'text/plain',
       lastModified: Date.now(),
     }
   )

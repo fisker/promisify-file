@@ -11,13 +11,10 @@ module.exports = {
   root: true,
   env: {},
   parserOptions: {},
-  extends: ['@fisker'],
+  extends: ['@fisker', '@fisker/jest'],
   settings: {},
   rules: {},
   plugins: [],
-  globals: {
-    Uint8Array: false,
-    DataView: false,
-  },
+  globals: {},
   overrides: [],
 }

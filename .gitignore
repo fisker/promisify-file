@@ -1,3 +1,8 @@
+# ignore file for git project
+#
+# update: wget -O .gitignore https://git.io/fjVjD
+#
+
 # Base on https://www.gitignore.io/api/node
 
 ### Node ###
