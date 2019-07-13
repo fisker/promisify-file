@@ -3,7 +3,7 @@ module.exports = {
   collectCoverageFrom: ['src/**/*'],
   verbose: true,
   // testRegex: ['__tests__/*.js'],
-  testPathIgnorePatterns: ['/shared/'],
+  testPathIgnorePatterns: ['/shared/', '.eslintrc.js'],
   testEnvironment: 'jest-environment-jsdom-thirteen',
   testEnvironmentOptions: {resources: 'usable'},
 }

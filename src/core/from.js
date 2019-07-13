@@ -104,8 +104,7 @@ function parseFromData(data, options) {
 function parseData(data, options = {}) {
   const blob = parseFromData(data, options)
   const promise = isThenAble(blob) ? blob : Promise.resolve(blob)
-
-  return promise.then(() => new File(blob, options))
+  return promise.then(blob => new File(blob, options))
 }
 
 export default parseData
