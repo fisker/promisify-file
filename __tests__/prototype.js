@@ -133,8 +133,8 @@ describe('prototype', () => {
     )
   })
 
-  test('broken xml', () => {
-    expect(testHTMLFile.xml()).rejects.toThrow()
+  test('broken xml', async () => {
+    await expect(testHTMLFile.xml()).rejects.toThrow()
   })
 
   test('image', async () => {
@@ -184,13 +184,13 @@ describe('prototype', () => {
   test.skip('url', async () => {
     const url = await testPNGFile.url()
     const dataURL = await testPNGFile.dataURL()
-    expect(url).toBe(dataURL)
+    await expect(url).toBe(dataURL)
   })
 
   // jsdom use dataURL as url
   test.skip('urlSync', async () => {
     const url = testPNGFile.urlSync()
     const dataURL = await testPNGFile.dataURL()
-    expect(url).toBe(dataURL)
+    await expect(url).toBe(dataURL)
   })
 })
