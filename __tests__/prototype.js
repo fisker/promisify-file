@@ -184,13 +184,13 @@ describe('prototype', () => {
   test.skip('url', async () => {
     const url = await testPNGFile.url()
     const dataURL = await testPNGFile.dataURL()
-    await expect(url).toBe(dataURL)
+    expect(url).toBe(dataURL)
   })
 
   // jsdom use dataURL as url
   test.skip('urlSync', async () => {
     const url = testPNGFile.urlSync()
     const dataURL = await testPNGFile.dataURL()
-    await expect(url).toBe(dataURL)
+    expect(url).toBe(dataURL)
   })
 })
