@@ -6,6 +6,8 @@ node_js:
 cache:
   yarn: true
 after_install: npm install --global yarn
+install:
+  - yarn
 script:
   - yarn lint
   - yarn test-coverage
