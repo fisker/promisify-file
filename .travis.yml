@@ -1,11 +1,10 @@
 language: node_js
 node_js:
-  - "12"
-  - "10"
-  - "8"
+  - "lts/*"
 cache:
   yarn: true
-after_install: npm install --global yarn
+before_install:
+  - npm install --global yarn
 install:
   - yarn
 script:
