@@ -53,7 +53,7 @@
     "@fisker/lint-staged-config": "^1.0.5",
     "@fisker/prettier-config": "^1.0.18",
     "babel-eslint": "10.0.2",
-    "babel-jest": "24.8.0",
+    "babel-jest": "24.9.0",
     "babel-plugin-transform-async-to-promises": "^0.8.14",
     "babel-polyfill": "6.26.0",
     "babel-preset-minify": "0.5.1",
