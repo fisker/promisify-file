@@ -53,7 +53,7 @@
     "@fisker/lint-staged-config": "1.0.6",
     "@fisker/prettier-config": "1.0.21",
     "babel-jest": "24.9.0",
-    "babel-plugin-transform-async-to-promises": "0.8.14",
+    "babel-plugin-transform-async-to-promises": "0.8.15",
     "babel-polyfill": "6.26.0",
     "babel-preset-minify": "0.5.1",
     "canvas": "2.6.0",
