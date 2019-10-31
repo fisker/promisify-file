@@ -57,7 +57,7 @@
     "babel-polyfill": "6.26.0",
     "babel-preset-minify": "0.5.1",
     "canvas": "2.6.0",
-    "core-js": "3.3.5",
+    "core-js": "3.3.6",
     "cz-conventional-changelog-emoji": "0.1.0",
     "eslint": "6.6.0",
     "eslint-formatter-friendly": "7.0.0",
