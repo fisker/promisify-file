@@ -18,15 +18,15 @@
     "email": "lionkay@gmail.com",
     "url": "https://www.fiskercheung.com/"
   },
-  "files": [
-    "lib/index.js"
-  ],
   "sideEffects": false,
   "main": "lib/index.js",
   "jsdelivr": "lib/index.min.js",
   "unpkg": "lib/index.min.js",
   "module": "lib/index.min.mjs",
   "browser": "lib/index.min.js",
+  "files": [
+    "lib/index.js"
+  ],
   "scripts": {
     "build": "run-p build:*",
     "build:js": "rollup --config",
@@ -90,7 +90,7 @@
     "rollup-plugin-babel": "4.3.3",
     "rollup-plugin-prettier": "0.6.0",
     "rollup-plugin-terser": "5.2.0",
-    "sort-package-json": "1.39.0",
+    "sort-package-json": "1.39.1",
     "uglify-js": "3.7.6",
     "whatwg-fetch": "3.0.0"
   },
