@@ -7,11 +7,12 @@
     "fileReader",
     "promise"
   ],
-  "homepage": "https://github.com/fisker/promise-file#readme",
+  "homepage": "https://github.com/fisker/promisify-file#readme",
   "bugs": {
-    "url": "https://github.com/fisker/promise-file/issues"
+    "url": "https://github.com/fisker/promisify-file/issues"
   },
-  "repository": "fisker/promise-file",
+  "repository": "fisker/promisify-file",
+  "funding": "https://github.com/fisker/promisify-file?sponsor=1",
   "license": "MIT",
   "author": {
     "name": "fisker Cheung",
