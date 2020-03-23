@@ -2,7 +2,7 @@ import hasOwn from '../../utils/has-own'
 import isFunction from '../../utils/is-function'
 
 function cacheResult(key, fn) {
-  return function(...arguments_) {
+  return function (...arguments_) {
     const cacheKey = isFunction(key) ? key.call(this, ...arguments_) : key
     const {$store: store} = this
     if (hasOwn(store, cacheKey)) {

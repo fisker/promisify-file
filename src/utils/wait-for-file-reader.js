@@ -12,11 +12,11 @@ function waitForFileReader(resolve, reject, fileReader) {
     return
   }
 
-  on(fileReader, 'load', function() {
+  on(fileReader, 'load', function () {
     resolve(fileReader.result)
   })
 
-  on(fileReader, 'error', function() {
+  on(fileReader, 'error', function () {
     reject(fileReader.error)
   })
 }

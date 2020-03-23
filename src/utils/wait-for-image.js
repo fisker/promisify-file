@@ -8,11 +8,11 @@ function waitForImage(resolve, reject, image) {
     return
   }
 
-  on(image, 'load', function() {
+  on(image, 'load', function () {
     resolve(image)
   })
 
-  on(image, 'error', function() {
+  on(image, 'error', function () {
     reject(new Error(IMAGE_LOAD_ERROR))
   })
 }

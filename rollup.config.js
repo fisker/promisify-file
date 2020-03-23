@@ -32,7 +32,7 @@ const builds = {
 
 const minifiedBuilds = {
   ...builds,
-  output: builds.output.map(config => ({
+  output: builds.output.map((config) => ({
     ...config,
     file: config.file.replace(/(\.m?js)$/, '.min$1'),
   })),

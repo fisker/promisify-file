@@ -9,13 +9,13 @@ function waitForXMLHttpRequest(resolve, reject, xhr) {
     return
   }
 
-  on(xhr, 'load', function() {
+  on(xhr, 'load', function () {
     resolve(parseXHRData(xhr))
   })
-  on(xhr, 'error', function() {
+  on(xhr, 'error', function () {
     reject(new Error(XMLHTTP_LOAD_ERROR))
   })
-  on(xhr, 'timeout', function() {
+  on(xhr, 'timeout', function () {
     reject(new Error(XMLHTTP_TIMEOUT_ERROR))
   })
 }

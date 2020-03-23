@@ -37,9 +37,7 @@ function parseFromData(data, options) {
   }
 
   if (type === 'HTMLImageElement') {
-    return waitForImage(data)
-      .then(drawImage)
-      .then(parser)
+    return waitForImage(data).then(drawImage).then(parser)
   }
 
   if (type === 'ImageBitmap') {
@@ -104,7 +102,7 @@ function parseFromData(data, options) {
 function parseData(data, options = {}) {
   const blob = parseFromData(data, options)
   const promise = isThenAble(blob) ? blob : Promise.resolve(blob)
-  return promise.then(blob => new File(blob, options))
+  return promise.then((blob) => new File(blob, options))
 }
 
 export default parseData
