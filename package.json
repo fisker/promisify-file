@@ -67,7 +67,7 @@
     "@fisker/lint-staged-config": "2.0.0",
     "@fisker/prettier-config": "2.0.0",
     "@rollup/plugin-node-resolve": "7.1.1",
-    "babel-jest": "25.2.1",
+    "babel-jest": "25.2.3",
     "babel-plugin-transform-async-to-promises": "0.8.15",
     "babel-polyfill": "6.26.0",
     "babel-preset-minify": "0.5.1",
