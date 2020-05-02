@@ -27,7 +27,8 @@ const htmlFile = {
   }),
 }
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1"><circle id="test" /></svg>`
+const svg =
+  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"><circle id="test" /></svg>'
 
 const svgFile = {
   content: svg,

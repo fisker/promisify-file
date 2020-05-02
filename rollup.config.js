@@ -5,7 +5,7 @@ import {terser} from 'rollup-plugin-terser'
 import prettier from 'prettier'
 
 const libraryName = 'PromisifyFile'
-const prettierConfig = prettier.resolveConfig.sync(`src/index.js`)
+const prettierConfig = prettier.resolveConfig.sync('src/index.js')
 
 const plugins = [nodeResolve(), babel(), rollupPrettier(prettierConfig)]
 const minify = [nodeResolve(), babel(), terser()]
