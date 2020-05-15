@@ -14,7 +14,7 @@ export const SUPPORTS_FILE_CONSTRUCTOR = (function () {
   try {
     const file = new File([], '')
     return isObject(file)
-  } catch (error) {
+  } catch {
     return false
   }
 })()
@@ -27,7 +27,7 @@ export const SUPPORTS_BLOB_CONSTRUCTOR_WITH_DATA_VIEW = (function () {
     const dataView = new DataView(arrayBuffer)
     const blob = new Blob([dataView])
     return isObject(blob)
-  } catch (error) {
+  } catch {
     return false
   }
 })()

@@ -81,7 +81,7 @@ function parseFromData(data, options) {
       if (blob) {
         return blob
       }
-    } catch (error) {}
+    } catch {}
   }
 
   if (/^(?:blob|data):/.test(data)) {
