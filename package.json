@@ -87,7 +87,7 @@
     "prettier": "2.0.5",
     "promisify-file-reader": "4.0.0",
     "regenerator-runtime": "0.13.5",
-    "rollup": "2.18.1",
+    "rollup": "2.18.2",
     "rollup-plugin-babel": "4.4.0",
     "rollup-plugin-prettier": "2.1.0",
     "rollup-plugin-terser": "6.1.0",
