@@ -92,7 +92,7 @@
     "rollup-plugin-prettier": "2.1.0",
     "rollup-plugin-terser": "7.0.2",
     "sort-package-json": "1.44.0",
-    "uglify-js": "3.10.3",
+    "uglify-js": "3.10.4",
     "whatwg-fetch": "3.4.0"
   },
   "publishConfig": {
