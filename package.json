@@ -64,7 +64,7 @@
     "@fisker/eslint-config": "3.1.1",
     "@fisker/eslint-config-jest": "2.0.5",
     "@fisker/husky-config": "4.0.0",
-    "@fisker/lint-staged-config": "2.2.0",
+    "@fisker/lint-staged-config": "3.0.0",
     "@fisker/prettier-config": "4.0.0",
     "@rollup/plugin-node-resolve": "11.0.0",
     "babel-jest": "26.6.3",
