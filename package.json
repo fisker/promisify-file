@@ -74,7 +74,7 @@
     "canvas": "2.8.0",
     "core-js": "3.14.0",
     "cz-conventional-changelog": "3.3.0",
-    "del-cli": "3.0.1",
+    "del-cli": "4.0.0",
     "eslint": "7.28.0",
     "eslint-formatter-friendly": "7.0.0",
     "husky": "6.0.0",
