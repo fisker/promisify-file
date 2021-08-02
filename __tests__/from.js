@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom-thirteen
- */
-
 import {from} from '../src'
 import {textFile, htmlFile, pngFile, svgFile} from './shared/fixures'
 

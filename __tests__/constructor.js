@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom-thirteen
- */
-
 import PromisifyFile from '../src'
 
 describe('constructor.data', () => {

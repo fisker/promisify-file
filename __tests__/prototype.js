@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom-thirteen
- */
-
 import PromisifyFile from '../src'
 import {textFile, htmlFile, pngFile, svgFile} from './shared/fixures'
 
