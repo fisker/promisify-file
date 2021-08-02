@@ -7,14 +7,14 @@
  * @param  {Function} func
  * @returns {Function}
  */
-function memoize(func) {
+function memoize(function_) {
   const cache = {}
 
   function memoized(...arguments_) {
     const [key] = arguments_
 
     if (!cache[key]) {
-      cache[key] = func(...arguments_)
+      cache[key] = function_(...arguments_)
     }
     return cache[key]
   }

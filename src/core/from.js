@@ -19,11 +19,11 @@ import {SUPPORTS_BLOB_CONSTRUCTOR_WITH_DATA_VIEW} from '../supports'
 import isDataView from '../utils/is-data-view'
 
 function parseFromData(data, options) {
-  const parser = () => parseFromData(options)
+  const parse = (data) => parseFromData(data, options)
 
   // Promise
   if (isThenAble(data)) {
-    return data.then(parser)
+    return data.then(parse)
   }
 
   const type = getType(data)
@@ -33,23 +33,23 @@ function parseFromData(data, options) {
   }
 
   if (type === 'XMLHttpRequest') {
-    return waitForXMLHttpRequest(data).then(parser)
+    return waitForXMLHttpRequest(data).then(parse)
   }
 
   if (type === 'HTMLImageElement') {
-    return waitForImage(data).then(drawImage).then(parser)
+    return waitForImage(data).then(drawImage).then(parse)
   }
 
   if (type === 'ImageBitmap') {
-    return parser(drawImage(data))
+    return parse(drawImage(data))
   }
 
   if (type === 'ImageData') {
-    return parser(putImageData(data))
+    return parse(putImageData(data))
   }
 
   if (type === 'FileReader') {
-    return waitForFileReader(data).then(parser)
+    return waitForFileReader(data).then(parse)
   }
 
   if (isBody(data)) {
@@ -57,7 +57,7 @@ function parseFromData(data, options) {
   }
 
   if (isDocument(data)) {
-    return parser(documentToText(data))
+    return parse(documentToText(data))
   }
 
   // HTMLCanvasElement
@@ -72,7 +72,7 @@ function parseFromData(data, options) {
 
   // RenderingContext
   if (isRenderingContext(data)) {
-    return parser(data.canvas)
+    return parse(data.canvas)
   }
 
   if (isDataURL(data)) {
@@ -85,11 +85,11 @@ function parseFromData(data, options) {
   }
 
   if (/^(?:blob|data):/.test(data)) {
-    return download(data).then(parser)
+    return download(data).then(parse)
   }
 
   if (!SUPPORTS_BLOB_CONSTRUCTOR_WITH_DATA_VIEW && isDataView(data)) {
-    return parser(data.buffer)
+    return parse(data.buffer)
   }
 
   // if (type === 'ArrayBuffer' || ArrayBuffer.isView(data)) {

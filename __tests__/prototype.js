@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom-thirteen
- */
-
 import PromisifyFile from '../src'
 import {textFile, htmlFile, pngFile, svgFile} from './shared/fixures'
 
@@ -41,8 +37,7 @@ describe('prototype', () => {
   test('dataURL(text)', async () => {
     const url = await testTextFile.dataURL()
     const [, content] = url.split(',')
-    const encoded = encodeURIComponent(textFile.content)
-    expect(content).toBe(encoded)
+    expect(content).toBe(Buffer.from(textFile.content).toString('base64'))
   })
 
   test('dataURL(png)', async () => {

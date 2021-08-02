@@ -4,6 +4,6 @@ module.exports = {
   verbose: true,
   // testRegex: ['__tests__/*.js'],
   testPathIgnorePatterns: ['/shared/', '.eslintrc.js'],
-  testEnvironment: 'jest-environment-jsdom-thirteen',
+  testEnvironment: 'jsdom',
   testEnvironmentOptions: {resources: 'usable'},
 }

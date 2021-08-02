@@ -13,11 +13,20 @@ module.exports = {
   parserOptions: {},
   extends: ['@fisker'],
   settings: {},
-  rules: {},
+  rules: {
+    'unicorn/prefer-node-protocol': 'off',
+    'unicorn/import-style': 'off',
+    'sonarjs/cognitive-complexity': 'off',
+  },
   plugins: [],
   globals: {
     Uint8Array: false,
     DataView: false,
   },
-  overrides: [],
+  overrides: [
+    {
+      files: ['__tests__/**.*'],
+      extends: ['@fisker/jest'],
+    },
+  ],
 }
