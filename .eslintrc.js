@@ -16,6 +16,7 @@ module.exports = {
   rules: {
     'unicorn/prefer-node-protocol': 'off',
     'unicorn/import-style': 'off',
+    'sonarjs/cognitive-complexity': 'off',
   },
   plugins: [],
   globals: {
