@@ -13,7 +13,10 @@ module.exports = {
   parserOptions: {},
   extends: ['@fisker'],
   settings: {},
-  rules: {},
+  rules: {
+    'unicorn/prefer-node-protocol': 'off',
+    'unicorn/import-style': 'off',
+  },
   plugins: [],
   globals: {
     Uint8Array: false,

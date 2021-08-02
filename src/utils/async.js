@@ -1,6 +1,6 @@
-function toPromise(func) {
+function toPromise(function_) {
   return async function (...arguments_) {
-    return func.call(this, ...arguments_)
+    return function_.call(this, ...arguments_)
   }
 }
 
