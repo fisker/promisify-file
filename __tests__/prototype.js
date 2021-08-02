@@ -37,8 +37,7 @@ describe('prototype', () => {
   test('dataURL(text)', async () => {
     const url = await testTextFile.dataURL()
     const [, content] = url.split(',')
-    const encoded = encodeURIComponent(textFile.content)
-    expect(content).toBe(encoded)
+    expect(content).toBe(textFile.content.toString('base64'))
   })
 
   test('dataURL(png)', async () => {
