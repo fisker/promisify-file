@@ -23,5 +23,10 @@ module.exports = {
     Uint8Array: false,
     DataView: false,
   },
-  overrides: [],
+  overrides: [
+    {
+      files: ['__tests__/**.*'],
+      extends: ['@fisker/jest'],
+    },
+  ],
 }
