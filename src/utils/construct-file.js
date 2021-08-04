@@ -1,5 +1,4 @@
 import {SUPPORTS_FILE_CONSTRUCTOR} from '../supports.js'
-
 import {File, Blob} from './global-this.js'
 
 function toFile(parts, fileName, options) {

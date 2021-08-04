@@ -1,10 +1,9 @@
 import {Blob} from '../utils/global-this.js'
 import defineValues from '../utils/define-values.js'
-
 import constructFile from '../utils/construct-file.js'
 import isBlob from '../utils/is-blob.js'
 import {CONSTRUCTOR_DATA_TYPE_ERROR} from '../constants.js'
-import * as prototype from './prototype.js'
+import * as prototype from './prototype/index.js'
 
 class File {
   constructor(data, options = {}) {
