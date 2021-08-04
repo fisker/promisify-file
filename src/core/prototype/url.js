@@ -1,6 +1,6 @@
-import {URL} from '../../utils/global-this'
-import toPromise from '../../utils/async'
-import cacheResult from '../helper/cache-result'
+import {URL} from '../../utils/global-this.js'
+import toPromise from '../../utils/async.js'
+import cacheResult from '../helper/cache-result.js'
 
 // get `URL`
 const urlSync = cacheResult('url', function url() {

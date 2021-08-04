@@ -1,5 +1,5 @@
-import isArrayBuffer from './is-array-buffer'
-import isObject from './is-object'
+import isArrayBuffer from './is-array-buffer.js'
+import isObject from './is-object.js'
 
 // ie DataView.toString is [object Object]
 function isDataView(x) {

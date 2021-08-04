@@ -1,4 +1,4 @@
-import isUndefined from './is-undefined'
+import isUndefined from './is-undefined.js'
 
 function promisify(function_) {
   function promised(...arguments_) {

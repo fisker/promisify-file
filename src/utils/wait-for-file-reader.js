@@ -1,5 +1,5 @@
-import promisify from './promisify'
-import on from './on'
+import promisify from './promisify.js'
+import on from './on.js'
 
 function waitForFileReader(resolve, reject, fileReader) {
   if (fileReader.result) {

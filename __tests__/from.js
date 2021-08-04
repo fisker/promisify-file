@@ -1,5 +1,5 @@
-import {from} from '../src'
-import {textFile, htmlFile, pngFile, svgFile} from './shared/fixures'
+import {from} from '../src/index.js'
+import {textFile, htmlFile, pngFile, svgFile} from './shared/fixures.js'
 
 describe('from', () => {
   test('File', async () => {

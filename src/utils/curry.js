@@ -1,4 +1,4 @@
-import {CURRY_SIDE_END} from '../constants'
+import {CURRY_SIDE_END} from '../constants.js'
 /**
  * Simple curry
  * internal use only

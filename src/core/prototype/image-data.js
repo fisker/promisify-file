@@ -1,5 +1,5 @@
-import getImageData from '../../utils/get-image-data'
-import cacheResult from '../helper/cache-result'
+import getImageData from '../../utils/get-image-data.js'
+import cacheResult from '../helper/cache-result.js'
 
 // get `ImageBitmap`
 const imageData = cacheResult(

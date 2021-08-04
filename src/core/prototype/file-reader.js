@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import {
   readAsArrayBuffer,
   readAsText,
@@ -6,9 +5,9 @@ import {
   readAsBinaryString,
 } from 'promisify-file-reader'
 
-import cacheResult from '../helper/cache-result'
+import cacheResult from '../helper/cache-result.js'
 
-import {DEFAULT_TEXT_ENCODING} from '../../constants'
+import {DEFAULT_TEXT_ENCODING} from '../../constants.js'
 
 const methods = {
   arrayBuffer: readAsArrayBuffer,

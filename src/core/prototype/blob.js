@@ -1,5 +1,5 @@
-import {Blob} from '../../utils/global-this'
-import toPromise from '../../utils/async'
+import {Blob} from '../../utils/global-this.js'
+import toPromise from '../../utils/async.js'
 
 // get `Blob`
 function blobSync(options = {}) {

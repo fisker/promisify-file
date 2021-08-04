@@ -1,5 +1,5 @@
-import {createImageBitmap} from '../../utils/global-this'
-import cacheResult from '../helper/cache-result'
+import {createImageBitmap} from '../../utils/global-this.js'
+import cacheResult from '../helper/cache-result.js'
 
 // get `ImageBitmap`
 const imageBitmap = cacheResult(

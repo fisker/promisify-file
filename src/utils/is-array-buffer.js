@@ -1,5 +1,5 @@
-import isObject from './is-object'
-import getType from './get-type'
+import isObject from './is-object.js'
+import getType from './get-type.js'
 
 function isArrayBuffer(x) {
   return isObject(x) && getType(x) === 'ArrayBuffer'

@@ -1,4 +1,4 @@
-import {atob, Uint8Array, Blob} from './global-this'
+import {atob, Uint8Array, Blob} from './global-this.js'
 
 function dataURLToBlob(data, type) {
   const binary = atob(data.split(',')[1])

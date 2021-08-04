@@ -5,11 +5,11 @@ import {
   DataView,
   Blob,
   URL,
-} from './utils/global-this'
-import isObject from './utils/is-object'
-import isFunction from './utils/is-function'
+} from './utils/global-this.js'
+import isObject from './utils/is-object.js'
+import isFunction from './utils/is-function.js'
 
-// ie do't support File Constructor
+// IE don't support File Constructor
 export const SUPPORTS_FILE_CONSTRUCTOR = (function () {
   try {
     const file = new File([], '')

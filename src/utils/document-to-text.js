@@ -1,4 +1,4 @@
-import {XMLSerializer} from './global-this'
+import {XMLSerializer} from './global-this.js'
 
 function documentToText(document) {
   return (

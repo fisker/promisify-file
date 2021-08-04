@@ -1,4 +1,4 @@
-import getRenderingContext2D from './get-rendering-context'
+import getRenderingContext2D from './get-rendering-context.js'
 
 function drawImage(image) {
   const context = getRenderingContext2D(

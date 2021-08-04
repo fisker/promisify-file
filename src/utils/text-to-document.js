@@ -1,5 +1,5 @@
-import {DOMParser} from './global-this'
-import throwParserError from './throw-dom-parser-error'
+import {DOMParser} from './global-this.js'
+import throwParserError from './throw-dom-parser-error.js'
 
 function textToDocument(text, mimeType) {
   const parser = new DOMParser()

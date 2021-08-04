@@ -1,5 +1,5 @@
-import hasOwn from '../../utils/has-own'
-import isFunction from '../../utils/is-function'
+import hasOwn from '../../utils/has-own.js'
+import isFunction from '../../utils/is-function.js'
 
 function cacheResult(key, function_) {
   return function (...arguments_) {

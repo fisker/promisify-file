@@ -1,5 +1,5 @@
-import isObject from './is-object'
-import isFunction from './is-function'
+import isObject from './is-object.js'
+import isFunction from './is-function.js'
 
 // whatwg-fetch polyfilled fetch Symbol.toString is not current
 function isBody(x) {

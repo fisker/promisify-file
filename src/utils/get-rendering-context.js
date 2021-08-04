@@ -1,6 +1,6 @@
-import {SUPPORTS_OFFSCREEN_CANVAS} from '../supports'
+import {SUPPORTS_OFFSCREEN_CANVAS} from '../supports.js'
 
-import {document, OffscreenCanvas} from './global-this'
+import {document, OffscreenCanvas} from './global-this.js'
 
 function getOffscreenCanvasRenderingContext2D(width, height) {
   const canvas = new OffscreenCanvas(width, height)

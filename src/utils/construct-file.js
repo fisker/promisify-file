@@ -1,6 +1,6 @@
-import {SUPPORTS_FILE_CONSTRUCTOR} from '../supports'
+import {SUPPORTS_FILE_CONSTRUCTOR} from '../supports.js'
 
-import {File, Blob} from './global-this'
+import {File, Blob} from './global-this.js'
 
 function toFile(parts, fileName, options) {
   return new File(parts, fileName, options)

@@ -1,7 +1,7 @@
-import defineValues from './utils/define-values'
+import defineValues from './utils/define-values.js'
 
-import File from './core/file'
-import from from './core/from'
+import File from './core/file.js'
+import from from './core/from.js'
 
 defineValues(File, {
   from,

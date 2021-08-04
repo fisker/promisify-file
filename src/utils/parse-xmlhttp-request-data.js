@@ -1,4 +1,4 @@
-import {XHR_RESPONSE_TYPES} from '../constants'
+import {XHR_RESPONSE_TYPES} from '../constants.js'
 
 function parseXHRData(xhr) {
   switch (xhr.responseType) {

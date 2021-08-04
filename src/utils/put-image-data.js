@@ -1,4 +1,4 @@
-import getRenderingContext2D from './get-rendering-context'
+import getRenderingContext2D from './get-rendering-context.js'
 
 function putImageData(data) {
   const context = getRenderingContext2D(data.width, data.height)

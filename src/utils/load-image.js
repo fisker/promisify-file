@@ -1,5 +1,5 @@
-import {Image} from './global-this'
-import waitForImage from './wait-for-image'
+import {Image} from './global-this.js'
+import waitForImage from './wait-for-image.js'
 
 // load as a `HTMLImageElement`
 function loadImage(url) {

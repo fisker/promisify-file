@@ -1,4 +1,4 @@
-import drawImage from './draw-image'
+import drawImage from './draw-image.js'
 
 function getImageData(
   image,

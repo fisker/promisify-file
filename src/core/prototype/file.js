@@ -1,5 +1,5 @@
-import constructFile from '../../utils/construct-file'
-import toPromise from '../../utils/async'
+import constructFile from '../../utils/construct-file.js'
+import toPromise from '../../utils/async.js'
 
 // get `File`
 function fileSync(name, options = '') {

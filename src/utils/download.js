@@ -1,3 +1,3 @@
-import {fetch} from './global-this'
+import {fetch} from './global-this.js'
 
 export default fetch

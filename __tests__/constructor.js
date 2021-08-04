@@ -1,4 +1,5 @@
-import PromisifyFile from '../src'
+import {Buffer} from 'buffer'
+import PromisifyFile from '../src/index.js'
 
 describe('constructor.data', () => {
   test('should accept blob', () => {

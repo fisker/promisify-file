@@ -1,7 +1,7 @@
-import textToDocument from '../../utils/text-to-document'
-import cacheResult from '../helper/cache-result'
+import textToDocument from '../../utils/text-to-document.js'
+import cacheResult from '../helper/cache-result.js'
 
-import {DOMPARSER_TYPES} from '../../constants'
+import {DOMPARSER_TYPES} from '../../constants.js'
 
 function cacheKey(type) {
   return `document[${type}]`

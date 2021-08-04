@@ -1,6 +1,6 @@
-import promisify from './promisify'
-import on from './on'
-import {IMAGE_LOAD_ERROR} from '../constants'
+import {IMAGE_LOAD_ERROR} from '../constants.js'
+import promisify from './promisify.js'
+import on from './on.js'
 
 function waitForImage(resolve, reject, image) {
   if (image.naturalWidth) {

@@ -1,4 +1,4 @@
-import isNull from './is-null'
+import isNull from './is-null.js'
 
 const {hasOwnProperty} = Object.prototype
 

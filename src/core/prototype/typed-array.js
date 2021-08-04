@@ -1,5 +1,5 @@
-import globalThis from '../../utils/global-this'
-import cacheResult from '../helper/cache-result'
+import globalThis from '../../utils/global-this.js'
+import cacheResult from '../helper/cache-result.js'
 
 function getView(type) {
   const TypedArray = globalThis[type[0].toUpperCase() + type.slice(1)]

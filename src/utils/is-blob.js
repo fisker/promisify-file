@@ -1,4 +1,4 @@
-import getType from './get-type'
+import getType from './get-type.js'
 
 function isBlob(x) {
   const type = getType(x)

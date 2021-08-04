@@ -1,5 +1,6 @@
-import PromisifyFile from '../src'
-import {textFile, htmlFile, pngFile, svgFile} from './shared/fixures'
+import {Buffer} from 'buffer'
+import PromisifyFile from '../src/index.js'
+import {textFile, htmlFile, pngFile, svgFile} from './shared/fixures.js'
 
 const testTextFile = new PromisifyFile(textFile.file)
 const testHTMLFile = new PromisifyFile(htmlFile.file)

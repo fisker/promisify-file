@@ -1,7 +1,7 @@
-import promisify from './promisify'
-import on from './on'
-import parseXHRData from './parse-xmlhttp-request-data'
-import {XMLHTTP_TIMEOUT_ERROR, XMLHTTP_LOAD_ERROR} from '../constants'
+import {XMLHTTP_TIMEOUT_ERROR, XMLHTTP_LOAD_ERROR} from '../constants.js'
+import promisify from './promisify.js'
+import on from './on.js'
+import parseXHRData from './parse-xmlhttp-request-data.js'
 
 function waitForXMLHttpRequest(resolve, reject, xhr) {
   if (xhr.readyState === 4) {

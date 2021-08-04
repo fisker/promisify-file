@@ -1,5 +1,5 @@
-import promisify from './promisify'
-import parseBase64DataURL from './data-url-to-blob'
+import promisify from './promisify.js'
+import parseBase64DataURL from './data-url-to-blob.js'
 
 function canvasToBlob(resolve, reject, canvas, type, quality) {
   if (canvas.toBlob) {
