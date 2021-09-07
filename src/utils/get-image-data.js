@@ -5,7 +5,7 @@ function getImageData(
   sx = 0,
   sy = 0,
   sw = image.naturalWidth || image.width,
-  sh = image.naturalHeight || image.height
+  sh = image.naturalHeight || image.height,
 ) {
   const context = drawImage(image)
 

@@ -7,7 +7,7 @@ const imageData = cacheResult(
   async function imageData(...arguments_) {
     const image = await this.image()
     return getImageData(image, ...arguments_)
-  }
+  },
 )
 
 export {imageData}

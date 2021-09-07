@@ -25,7 +25,7 @@ function readAs(dataType) {
     }
 
     encoding = String(
-      encoding || this.$options.encoding || DEFAULT_TEXT_ENCODING
+      encoding || this.$options.encoding || DEFAULT_TEXT_ENCODING,
     ).toUpperCase()
 
     return `${dataType}[${encoding}]`

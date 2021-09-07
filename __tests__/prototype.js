@@ -45,7 +45,7 @@ describe('prototype', () => {
     const url = await testPNGFile.dataURL()
 
     expect(url).toBe(
-      `data:image/png;base64,${pngFile.content.toString('base64')}`
+      `data:image/png;base64,${pngFile.content.toString('base64')}`,
     )
   })
 
@@ -110,7 +110,7 @@ describe('prototype', () => {
     expect(htmlDocument.documentElement).toBeInstanceOf(window.HTMLHtmlElement)
     expect(htmlDocument.body).toBeInstanceOf(window.HTMLBodyElement)
     expect(htmlDocument.getElementById('test')).toBeInstanceOf(
-      window.HTMLInputElement
+      window.HTMLInputElement,
     )
   })
 
@@ -125,7 +125,7 @@ describe('prototype', () => {
     const svgDocument = await testSVGFile.svg()
     expect(svgDocument).toBeInstanceOf(window.SVGDocument)
     expect(svgDocument.getElementById('test')).toBeInstanceOf(
-      window.SVGCircleElement
+      window.SVGCircleElement,
     )
   })
 

@@ -15,7 +15,7 @@ import PromisifyFile from 'promisify-file'
     {
       type: 'text/plain',
       lastModified: Date.now(),
-    }
+    },
   )
 
   const promisifyFile = new PromisifyFile(file)

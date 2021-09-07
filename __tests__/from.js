@@ -25,7 +25,7 @@ describe('from', () => {
     const url = file.dataURL()
 
     expect(url).toBe(
-      `data:image/png;base64,${pngFile.content.toString('base64')}`
+      `data:image/png;base64,${pngFile.content.toString('base64')}`,
     )
   })
 

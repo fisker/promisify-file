@@ -73,7 +73,7 @@ describe('constructor.options', () => {
     expect(file.$store.blob).not.toBe(blob)
     expect(file.$store.blob.lastModified).toBe(lastModified.getTime())
     expect(
-      file.$store.blob.lastModified - file.$store.original.lastModified
+      file.$store.blob.lastModified - file.$store.original.lastModified,
     ).toBe(1000)
   })
 })
