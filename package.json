@@ -68,7 +68,7 @@
     "@fisker/prettier-config": "5.0.0",
     "@rollup/plugin-node-resolve": "13.0.4",
     "babel-jest": "27.3.0",
-    "babel-plugin-transform-async-to-promises": "0.8.15",
+    "babel-plugin-transform-async-to-promises": "0.8.17",
     "babel-polyfill": "6.26.0",
     "babel-preset-minify": "0.5.1",
     "canvas": "2.8.0",
