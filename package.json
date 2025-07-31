@@ -85,7 +85,7 @@
     "parcel-bundler": "1.12.5",
     "prettier": "2.7.1",
     "promisify-file-reader": "4.1.0",
-    "regenerator-runtime": "0.13.10",
+    "regenerator-runtime": "0.13.11",
     "rollup": "3.3.0",
     "rollup-plugin-babel": "4.4.0",
     "rollup-plugin-prettier": "3.0.0",
